@@ -3,8 +3,8 @@ from button import Button
 from tools import draw_text
 from sys import argv
 
-X = 250
-Y = 600
+X = 1700
+Y = 800
 
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -51,55 +51,36 @@ KNEES = 6
 
 def draw_hit(screen, font, hit):
 	if hit['type'] == HOOK:
-		draw_text(screen, font, 'H', RED, hit['pos'])
+		draw_text(screen, font, 'H', hit['color'], hit['pos'])
 	if hit['type'] == JAB:
-		draw_text(screen, font, 'J', BLUE, hit['pos'])
+		draw_text(screen, font, 'J', hit['color'], hit['pos'])
 	if hit['type'] == UPPERCUT:
-		draw_text(screen, font, 'U', GREEN, hit['pos'])
+		draw_text(screen, font, 'U', hit['color'], hit['pos'])
 	if hit['type'] == OVERHAND:
-		draw_text(screen, font, 'O', ORANGE, hit['pos'])
+		draw_text(screen, font, 'O', hit['color'], hit['pos'])
 	if hit['type'] == CLMH:
-		draw_text(screen, font, 'K', YELLOW, hit['pos'])
+		draw_text(screen, font, 'K', hit['color'], hit['pos'])
 	if hit['type'] == ELBOW:
-		draw_text(screen, font, 'E', CYAN, hit['pos'])
+		draw_text(screen, font, 'E', hit['color'], hit['pos'])
 	if hit['type'] == KNEES:
-		draw_text(screen, font, 'G', PURPLE, hit['pos'])
+		draw_text(screen, font, 'G', hit['color'], hit['pos'])
 
-def disable_all_buttons(
-	jab_button,
-	hook_button,
-	uppercut_button,
-	overhand_button,
-	clmh_button,
-	elbow_button,
-	knees_button
-):
-	jab_button.is_selected = False
-	hook_button.is_selected = False
-	uppercut_button.is_selected = False
-	overhand_button.is_selected = False
-	clmh_button.is_selected = False
-	elbow_button.is_selected = False
-	knees_button.is_selected = False
+COLOR_HIT = [BLUE,RED,GREEN,ORANGE,PINK,CYAN,PURPLE]
 
-def disable_all_round_buttons(
-	round1_button,
-	round2_button,
-	round3_button,
-	round4_button,
-	round5_button
-):
-	round1_button.is_selected = False
-	round2_button.is_selected = False
-	round3_button.is_selected = False
-	round4_button.is_selected = False
-	round5_button.is_selected = False
+def disable_all_buttons(button_hit_type_list):
+	for i in range(len(button_hit_type_list)):
+		button_hit_type_list[i]['button'].is_selected = False
+
+def disable_all_round_buttons(button_round_list):
+	for i in range(len(button_round_list)):
+		button_round_list[i].is_selected = False
 
 import pickle
 import random
 def save_variable(var, name = random.randint(0, 1000)):
 	with open(str(name) + '.plk', 'wb') as file:
 	    pickle.dump(var, file)
+	print('saving with name: ' + str(name) + '.plk')
 
 def load_variable(path_save):
 	with open(path_save, 'rb') as file:
@@ -108,42 +89,47 @@ def load_variable(path_save):
 
 def engine(argv):
 	hit_list = [[], [], [], [], []]
+	ctrl_y_list = []
+	round_selected = 0
+	actual_hit_type = 0
+
 	if len(argv) > 1:
 		if argv[0] == '-l':
 			hit_list = load_variable(argv[1])
 			print('load_variable')
 
+	BASE = 50
+	jab_button = Button(70, BASE, 50, 100, BLUE, 0, 0, "Jab", WHITE, is_selected=True)
+	hook_button = Button(70, BASE + 50, 50, 100, RED, 0, 0, "Hook", WHITE, is_selected=False)
+	uppercut_button = Button(70, BASE + 2*(50), 50, 100, GREEN, 0, 0, "Uppercut", WHITE, is_selected=False)
+	overhand_button = Button(70, BASE + 3*(50), 50, 100, ORANGE, 0, 0, "Overhand", WHITE, is_selected=False)
+	clmh_button = Button(70, BASE + 4*(50), 50, 100, MAGENTA, 0, 0, "Kick", WHITE, is_selected=False)
+	elbow_button = Button(70, BASE + 5*(50), 50, 100, CYAN, 0, 0, "Elbow", WHITE, is_selected=False)
+	knees_button = Button(70, BASE + 6*(50), 50, 100, PURPLE, 0, 0, "Knees", WHITE, is_selected=False)
+	button_hit_type_list = [{'button': jab_button, 'type': JAB},{'button': hook_button, 'type': HOOK},{'button': uppercut_button, 'type': UPPERCUT},{'button': overhand_button, 'type': OVERHAND},{'button': clmh_button, 'type': CLMH},{'button': elbow_button, 'type': ELBOW},{'button': knees_button, 'type': KNEES}]
+
+	SIZE_X = 70
+	POS_X = 10
+	IMG_SIZE_Y = 549
+	round1_button = Button(POS_X, BASE + IMG_SIZE_Y , 50, SIZE_X, WHITE, 0, 0, "R1", BLACK, is_selected=True)
+	round2_button = Button(POS_X+SIZE_X, BASE + IMG_SIZE_Y , 50, SIZE_X, WHITE, 0, 0, "R2", BLACK, is_selected=False)
+	round3_button = Button(POS_X+SIZE_X*2, BASE + IMG_SIZE_Y , 50, SIZE_X, WHITE, 0, 0, "R3", BLACK, is_selected=False)
+	round4_button = Button(POS_X+SIZE_X*3, BASE + IMG_SIZE_Y , 50, SIZE_X, WHITE, 0, 0, "R4", BLACK, is_selected=False)
+	round5_button = Button(POS_X+SIZE_X*4, BASE + IMG_SIZE_Y , 50, SIZE_X, WHITE, 0, 0, "R5", BLACK, is_selected=False)
+	button_round_list = [round1_button, round2_button, round3_button, round4_button, round5_button]
+
 	pygame.init()
+	isRunning = True
 
 	screen = pygame.display.set_mode((X, Y))
 	imp = pygame.image.load('assets/model_body.png').convert()
-	pygame.display.set_caption('assets/Striking Analyse')
+	pygame.display.set_caption('Striking Analyse')
 	pygame.display.set_icon(pygame.image.load('assets/icon.png'))
 	font = pygame.font.Font('assets/OpenSans-Regular.ttf', 20)
-
 	pygame.display.flip()
-	isRunning = True
-	actual_hit_type = 0
-
-	ctrl_y_list = []
-	round_selected = 0
-
-	jab_button = Button(250, 171 / 2, 171 - X, 171 - X, BLUE, 0, 7, "Jab", WHITE, is_selected=True)
-	hook_button = Button(250, 171, 171 - X, 171 - X, RED, 0, 7, "Hook", WHITE, is_selected=False)
-	uppercut_button = Button(250, 171 + (171/2), 171 - X, 171 - X, GREEN, 0, 7, "Uppercut", WHITE, is_selected=False)
-	overhand_button = Button(250, 171 + 2*(171/2), 171 - X, 171 - X, ORANGE, 0, 7, "Overhand", WHITE, is_selected=False)
-	clmh_button = Button(250, 171 + 3*(171/2), 171 - X, 171 - X, MAGENTA, 0, 7, "Kick", WHITE, is_selected=False)
-	elbow_button = Button(250, 171 + 4*(171/2), 171 - X, 171 - X, CYAN, 0, 7, "Elbow", WHITE, is_selected=False)
-	knees_button = Button(250, 171 + 5*(171/2), 171 - X, 171 - X, PURPLE, 0, 7, "Knees", WHITE, is_selected=False)
-
-	round1_button = Button(0, Y - 50, 50, 50, WHITE, 0, 7, "R1", BLACK, is_selected=True)
-	round2_button = Button(50, Y - 50, 50, 50, WHITE, 0, 7, "R2", BLACK, is_selected=False)
-	round3_button = Button(100, Y - 50, 50, 50, WHITE, 0, 7, "R3", BLACK, is_selected=False)
-	round4_button = Button(150, Y - 50, 50, 50, WHITE, 0, 7, "R4", BLACK, is_selected=False)
-	round5_button = Button(200, Y - 50, 50, 50, WHITE, 0, 7, "R5", BLACK, is_selected=False)
 
 	while isRunning:
-		screen.blit(imp, (0, 0))
+		screen.blit(imp, (170, BASE))
 		for hit in hit_list[round_selected]:
 			draw_hit(screen, font, hit)
 
@@ -153,11 +139,8 @@ def engine(argv):
 				isRunning = False
 
 			if event.type == pygame.KEYDOWN:
-				# S - Save the image
+				# S - Save file
 				if event.key == pygame.K_s:
-					rect = pygame.Rect(0, 0, 171, 549)
-					sub = screen.subsurface(rect)
-					pygame.image.save(sub, "fight" + str(len(hit_list[0])) + ".png")
 					save_variable(hit_list)
 
 				# CTRL + Z
@@ -172,11 +155,12 @@ def engine(argv):
 			# LEFT CLICK - Point a hit
 			if event.type == pygame.MOUSEBUTTONUP:
 				pos = pygame.mouse.get_pos()
-				# print(pos[0], pos[1])
+				# print('mouse-', pos[0], pos[1])
 				# print(event.button)
-				if pos[0] <= 171 and pos[1] <= 546:
+				if pos[0] >= 170 and pos[0] <= 340 and pos[1] >= 50 and pos[1] <= 600:
 					hit_list[round_selected].append({
 						'pos': pos,
+						'color': COLOR_HIT[actual_hit_type],
 						'type': actual_hit_type,
 						'side': 'right' if event.button == 3 else 'left'
 					})
@@ -184,89 +168,24 @@ def engine(argv):
 
 			# print('tik: ', hit_list[round_selected])
 
-			# HIT SELECTION
-			if hook_button.draw_rect(screen, font, event):
-				actual_hit_type = HOOK
-				disable_all_buttons()
-				hook_button.is_selected = True
-			if jab_button.draw_rect(screen, font, event):
-				actual_hit_type = JAB
-				disable_all_buttons()
-				jab_button.is_selected = True
-			if uppercut_button.draw_rect(screen, font, event):
-				actual_hit_type = UPPERCUT
-				disable_all_buttons()
-				uppercut_button.is_selected = True
-			if overhand_button.draw_rect(screen, font, event):
-				actual_hit_type = OVERHAND
-				disable_all_buttons()
-				overhand_button.is_selected = True
-			if clmh_button.draw_rect(screen, font, event):
-				actual_hit_type = CLMH
-				disable_all_buttons()
-				clmh_button.is_selected = True
-			if elbow_button.draw_rect(screen, font, event):
-				actual_hit_type = ELBOW
-				disable_all_buttons()
-				elbow_button.is_selected = True
-			if knees_button.draw_rect(screen, font, event):
-				actual_hit_type = KNEES
-				disable_all_buttons()
-				knees_button.is_selected = True
+			draw_text(screen, font, 'Gane vs Lewis', WHITE, (10, 20))
 
+			# HIT SELECTION
+			for i in range(len(button_hit_type_list)):
+				if button_hit_type_list[i]['button'].draw_rect(screen, font, event):
+					disable_all_buttons(button_hit_type_list)
+					button_hit_type_list[i]['button'].is_selected = True
+					actual_hit_type = button_hit_type_list[i]['type']
 			# ROUND SELECTION
-			if round1_button.draw_rect(screen, font, event):
-				disable_all_round_buttons(
-					round1_button,
-					round2_button,
-					round3_button,
-					round4_button,
-					round5_button
-				)
-				round1_button.is_selected = True
-				round_selected = 0
-			if round2_button.draw_rect(screen, font, event):
-				disable_all_round_buttons(
-					round1_button,
-					round2_button,
-					round3_button,
-					round4_button,
-					round5_button
-				)
-				round2_button.is_selected = True
-				round_selected = 1
-			if round3_button.draw_rect(screen, font, event):
-				disable_all_round_buttons(
-					round1_button,
-					round2_button,
-					round3_button,
-					round4_button,
-					round5_button
-				)
-				round3_button.is_selected = True
-				round_selected = 2
-			if round4_button.draw_rect(screen, font, event):
-				disable_all_round_buttons(
-					round1_button,
-					round2_button,
-					round3_button,
-					round4_button,
-					round5_button
-				)
-				round4_button.is_selected = True
-				round_selected = 3
-			if round5_button.draw_rect(screen, font, event):
-				disable_all_round_buttons(
-					round1_button,
-					round2_button,
-					round3_button,
-					round4_button,
-					round5_button
-				)
-				round5_button.is_selected = True
-				round_selected = 4
+			for i in range(len(button_round_list)):
+				if button_round_list[i].draw_rect(screen, font, event):
+					disable_all_round_buttons(button_round_list)
+					button_round_list[i].is_selected = True
+					round_selected = i
 
 		pygame.display.update()
+
+		# END LOOP
 
 	pygame.quit()
 
