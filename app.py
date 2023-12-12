@@ -27,12 +27,14 @@ HIT_TYPE = [
 
 # TODO:
 # - CTRL+x / CTRL+y
-# - add custome text box
+# - regrouper les hits proches
+# - trouver un moyen de différencier les coups gauches des coups droits
 
 class App:
     def __init__(self, config = None):
         self.root = tk.Tk()
-        self.empty_body_path = "assets/model_body.png"
+        self.root.geometry("700x1000")
+        self.empty_body_path = 'assets/model_body.png'
         self.champs = {
             'hit_type': tk.IntVar(),
             'selected_rounds': tk.StringVar(),
@@ -40,15 +42,16 @@ class App:
         # My variables
         self.rounds_selected = []
         self.memory = {
-            'hits': [[], [], [], [], []]
+            'hits': [[], [], [], [], []],
+            'commentary': None
         }
         self.name = config
 
-        self._create_gui()
         if config is not None:
             self._load(config)
+        self._create_gui()
 
-        self.root.title("Fight Analyse")
+        self.root.title('Fight Analyse')
         self.root.mainloop()
 
     def _select_round_click(self, button_index):
@@ -70,9 +73,9 @@ class App:
 
     def _create_gui(self):
         # TITRE
-        self.title_entry = tk.Entry(self.root)
+        self.title_entry = tk.Entry(self.root, width=70)
         if self.name:
-            self.title_entry.insert(0, self.name[:-4])
+            self.title_entry.insert(tk.INSERT, self.name[:-4])
         self.title_entry.pack()
         #####
 
@@ -80,7 +83,7 @@ class App:
         for i in range(5):
             button_text = "Round {}".format(i+1)
             button = tk.Checkbutton(self.root, text=button_text, variable=tk.IntVar(), command=lambda i=i: self._select_round_click(i))
-            button.pack(pady=5)
+            button.pack()
         #####
 
         # HIT BUTTONS
@@ -96,6 +99,11 @@ class App:
         self.img = tk.PhotoImage(file=self.empty_body_path)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
         #####
+
+        self.commentary_entry = tk.Text(self.root)
+        if self.memory['commentary']:
+            self.commentary_entry.insert(tk.INSERT, self.memory['commentary'])
+        self.commentary_entry.pack()
 
         # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
@@ -143,6 +151,7 @@ class App:
         })
 
     def _save(self):
+        self.memory['commentary'] = self.commentary_entry.get()
         with open(str(self.title_entry.get()) + '.plk', 'wb') as file:
     	    pickle.dump(self.memory, file)
         print('saving with name: ' + str(self.title_entry.get()) + '.plk')
@@ -163,10 +172,11 @@ class App:
                     self.memory['hits'][i][j]['side'],
                     self.memory['hits'][i][j]['color']
                 )
+        # print('self.commantary:', self.memory['commentary'])
+        # self.commantary = self.memory['commentary']
 
     def _debug(self):
-        title_value = self.title_entry.get()
-        print(f"Title: {title_value}")
+        print(f"Title: {self.title_entry.get()}")
 
         for v, k in self.champs.items():
             print(f"{v} : {k.get()}")
