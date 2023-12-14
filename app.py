@@ -27,16 +27,16 @@ HIT_TYPE = [
 ]
 
 # TODO:
-# - CTRL+x / CTRL+y
 # - regrouper les hits proches
 # - trouver un moyen de différencier les coups gauches des coups droits
-# - timer
+# - je pense qu'on peut optimiser le code car je recréer a chaque tour de boucle
+
 # autopep8 -i app.py
 
 class App:
     def __init__(self, config=None):
         self.root = tk.Tk()
-        self.root.geometry("700x1080")
+        self.root.geometry("900x1080")
         self.root.title('Fight Analyse')
 
         self.empty_body_path = 'assets/model_body.png'
@@ -52,6 +52,7 @@ class App:
             'hits': [[], [], [], [], []],
             'ground_control': None
         }
+        self.previous_hits = [] # list for CTRL+y / CTRL+z
         # self.name = config
 
         self.start_time = None
@@ -64,26 +65,6 @@ class App:
         self._create_gui()
 
         self.root.mainloop()
-
-    def _start_stop_timer(self):
-        if self.is_running:
-            self.is_running = False
-        else:
-            if self.start_time is None:
-                self.start_time = \
-                default_timer() - float(self.time_var.get().replace(":", ""))
-            self.is_running = True
-            self._update_time()
-
-    def _update_time(self):
-        if self.is_running:
-            now = default_timer() - self.start_time
-            minutes, seconds = divmod(now, 60)
-            hours, minutes = divmod(minutes, 60)
-            str_time = "%d:%02d:%02d" % (hours, minutes, seconds)
-
-            self.time_var.set(str_time)
-            self.root.after(1000, self._update_time)
 
     def _create_gui(self):
         # BUTTONS
@@ -138,6 +119,9 @@ class App:
         self.start_stop_button = tk.Button(
             leftFrame, text="Start/Stop", command=self._start_stop_timer)
         self.start_stop_button.pack()
+        self.reset = tk.Button(
+            leftFrame, text="Reset", command=self._reset_timer)
+        self.reset.pack()
         #####
         leftFrame.pack(side=tk.LEFT)
 
@@ -151,7 +135,66 @@ class App:
         # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
         self.canvas.bind("<Button-3>", self._add_letter_right)
+
+        self.root.bind_all("<Control-y>", self._redo)
+        self.root.bind_all("<Control-z>", self._undo)
         #####
+
+    def _start_stop_timer(self):
+        if self.is_running:
+            self.is_running = False
+        else:
+            if self.start_time is None:
+                self.start_time = \
+                default_timer() - float(self.time_var.get().replace(":", ""))
+            self.is_running = True
+            self._update_time()
+
+    def _update_time(self):
+        if self.is_running:
+            now = default_timer() - self.start_time
+            minutes, seconds = divmod(now, 60)
+            hours, minutes = divmod(minutes, 60)
+            str_time = "%d:%02d:%02d" % (hours, minutes, seconds)
+
+            self.time_var.set(str_time)
+            self.root.after(1000, self._update_time)
+
+    def _reset_timer(self):
+        self.time_var.set("00:00:00")
+
+    def _redo(self, event=None):
+        if len(self.previous_hits) >= 1:
+            hit_to_redo = self.previous_hits.pop()
+            for round in self.rounds_selected:
+                self.memory['hits'][round].append(hit_to_redo)
+
+                self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
+                for round in self.rounds_selected:
+                    for i in range(len(self.memory['hits'][round])):
+                        self._add_hit(
+                            self.memory['hits'][round][i]['pos'],
+                            self.memory['hits'][round][i]['type'],
+                            self.memory['hits'][round][i]['side'],
+                            self.memory['hits'][round][i]['color']
+                        )
+
+    def _undo(self, event=None):
+        for round in self.rounds_selected:
+            if len(self.memory['hits'][round]) >= 1:
+                hit_deleted = self.memory['hits'][round].pop()
+                self.previous_hits.append(hit_deleted)
+
+                self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
+                for round in self.rounds_selected:
+                    for i in range(len(self.memory['hits'][round])):
+                        self._add_hit(
+                            self.memory['hits'][round][i]['pos'],
+                            self.memory['hits'][round][i]['type'],
+                            self.memory['hits'][round][i]['side'],
+                            self.memory['hits'][round][i]['color']
+                        )
+
 
     def _select_round_click(self, button_index):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
@@ -204,7 +247,7 @@ class App:
         })
 
     def _save(self):
-        self.memory['filename'] = self.title_entry.get()
+        self.memory['filename'] = self.title_entry.get() + '.plk'
         self.memory['commentary'] = self.commentary_entry.get('1.0', tk.END)
         self.memory['ground_control'] = self.time_var.get()
         with open(str(self.title_entry.get()) + '.plk', 'wb') as file:
