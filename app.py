@@ -26,9 +26,15 @@ HIT_TYPE = [
     "Knee",
 ]
 
-# TODO:
+# TODO: feat
 # - regrouper les hits proches
 # - trouver un moyen de différencier les coups gauches des coups droits
+# - afficher les pourcentages de degat
+# - faire un graphique de représentation des hits
+# - systeme de notation hexagonal du combattant
+# - petit bouton des yeux pour ne pas prendre en compte certains coups
+
+# TODO: Optimisation
 # - je pense qu'on peut optimiser le code car je recréer a chaque tour de boucle
 
 # autopep8 -i app.py
@@ -53,7 +59,6 @@ class App:
             'ground_control': None
         }
         self.previous_hits = [] # list for CTRL+y / CTRL+z
-        # self.name = config
 
         self.start_time = None
         self.is_running = False
@@ -62,6 +67,9 @@ class App:
 
         if config is not None:
             self._load(config)        
+
+        self.hit_percent_label = tk.Label(self.root, text = self._get_percent_of_hits())
+
         self._create_gui()
 
         self.root.mainloop()
@@ -82,13 +90,13 @@ class App:
         self.title_entry.pack()
         #####
 
-        # leftFrame = tk.Frame(self.root, bg='BLUE')
-        leftFrame = tk.Frame(self.root)
+        # left_frame = tk.Frame(self.root, bg='BLUE')
+        left_frame = tk.Frame(self.root)
         # ROUNDS
         for i in range(5):
             button_text = "Round {}".format(i+1)
             button = tk.Checkbutton(
-                leftFrame, text=button_text,
+                left_frame, text=button_text,
                 variable=tk.IntVar(),
                 command=lambda i=i: self._select_round_click(i)
             )
@@ -96,7 +104,7 @@ class App:
         #####
 
         # PICTURE
-        self.canvas = tk.Canvas(leftFrame, width=171, height=549)
+        self.canvas = tk.Canvas(left_frame, width=171, height=549)
         self.canvas.pack()
 
         self.img = tk.PhotoImage(file=self.empty_body_path)
@@ -105,32 +113,39 @@ class App:
 
         # HIT BUTTONS
         for i, rb_label in enumerate(HIT_TYPE):
-            rb = ttk.Radiobutton(leftFrame, text=rb_label,
+            rb = ttk.Radiobutton(left_frame, text=rb_label,
                                  value=i, variable=self.champs['hit_type'])
             rb.pack()
         #####
 
         # Chrono
         self.time_label = tk.Label(
-            leftFrame, textvariable=self.time_var, font=("Helvetica", 24))
+            left_frame, textvariable=self.time_var, font=("Helvetica", 24))
         self.time_label.pack(pady=20)
 
         # Button to start/stop the timer
         self.start_stop_button = tk.Button(
-            leftFrame, text="Start/Stop", command=self._start_stop_timer)
+            left_frame, text="Start/Stop", command=self._start_stop_timer)
         self.start_stop_button.pack()
         self.reset = tk.Button(
-            leftFrame, text="Reset", command=self._reset_timer)
+            left_frame, text="Reset", command=self._reset_timer)
         self.reset.pack()
         #####
-        leftFrame.pack(side=tk.LEFT)
+        left_frame.pack(side=tk.LEFT)
 
-        rightFrame = tk.Frame(self.root, bg='RED')
-        self.commentary_entry = tk.Text(rightFrame)
+        self.right_frame = tk.Frame(self.root, bg='RED')
+        # COMMENTARY
+        self.commentary_entry = tk.Text(self.right_frame)
         if self.memory['commentary']:
             self.commentary_entry.insert(tk.INSERT, self.memory['commentary'])
         self.commentary_entry.pack(side=tk.RIGHT)
-        rightFrame.pack(side=tk.RIGHT)
+        #####
+
+        # PERCENT OF HITS
+        self._draw_percent()
+        #####
+
+        self.right_frame.pack(side=tk.RIGHT)
 
         # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
@@ -139,6 +154,33 @@ class App:
         self.root.bind_all("<Control-y>", self._redo)
         self.root.bind_all("<Control-z>", self._undo)
         #####
+
+    def _draw_percent(self):
+        self.hit_percent_label.config(text=(str(self._get_percent_of_hits())))
+        self.hit_percent_label.pack()
+
+    def _get_percent_of_hits(self, to_string=True):
+        n_hit_list = [{'n': 0, 'type': hit_t } for hit_t in HIT_TYPE]
+
+        # count how many hit
+        for round in self.rounds_selected:
+            for i in range(len(self.memory['hits'][round])):
+                n_hit_list[HIT_TYPE.index(self.memory['hits'][round][i]['type'])]['n'] += 1
+
+        # sort list
+        for i in range(len(n_hit_list)):
+            for j in range(len(n_hit_list) - 1):
+                if n_hit_list[i]['n'] > n_hit_list[j]['n']:
+                    n_hit_list[i], n_hit_list[j] = n_hit_list[j], n_hit_list[i]
+
+        # create string with list
+        if to_string:
+            r_value = ''
+            for case in n_hit_list:
+                r_value += (str(case['n']) + ' ' + case['type'] + '\n')
+            return r_value
+        else:
+            return n_hit_list
 
     def _start_stop_timer(self):
         if self.is_running:
@@ -168,42 +210,19 @@ class App:
             hit_to_redo = self.previous_hits.pop()
             for round in self.rounds_selected:
                 self.memory['hits'][round].append(hit_to_redo)
-
-                self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
-                for round in self.rounds_selected:
-                    for i in range(len(self.memory['hits'][round])):
-                        self._add_hit(
-                            self.memory['hits'][round][i]['pos'],
-                            self.memory['hits'][round][i]['type'],
-                            self.memory['hits'][round][i]['side'],
-                            self.memory['hits'][round][i]['color']
-                        )
+                self._redraw()
+            self._draw_percent()
 
     def _undo(self, event=None):
         for round in self.rounds_selected:
             if len(self.memory['hits'][round]) >= 1:
                 hit_deleted = self.memory['hits'][round].pop()
                 self.previous_hits.append(hit_deleted)
+                self._redraw()
+        self._draw_percent()
 
-                self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
-                for round in self.rounds_selected:
-                    for i in range(len(self.memory['hits'][round])):
-                        self._add_hit(
-                            self.memory['hits'][round][i]['pos'],
-                            self.memory['hits'][round][i]['type'],
-                            self.memory['hits'][round][i]['side'],
-                            self.memory['hits'][round][i]['color']
-                        )
-
-
-    def _select_round_click(self, button_index):
+    def _redraw(self):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
-        if button_index in self.rounds_selected:
-            self.rounds_selected.remove(button_index)
-        else:
-            self.rounds_selected.append(button_index)
-
-        # Draw only hits of rounds selected
         for round in self.rounds_selected:
             for i in range(len(self.memory['hits'][round])):
                 self._add_hit(
@@ -213,6 +232,25 @@ class App:
                     self.memory['hits'][round][i]['color']
                 )
 
+    def _select_round_click(self, button_index):
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
+        if button_index in self.rounds_selected:
+            self.rounds_selected.remove(button_index)
+        else:
+            self.rounds_selected.append(button_index)
+
+        # Draw only hits of rounds selected
+        self._redraw()
+        # for round in self.rounds_selected:
+        #     for i in range(len(self.memory['hits'][round])):
+        #         self._add_hit(
+        #             self.memory['hits'][round][i]['pos'],
+        #             self.memory['hits'][round][i]['type'],
+        #             self.memory['hits'][round][i]['side'],
+        #             self.memory['hits'][round][i]['color']
+        #         )
+        self._draw_percent()
+
     def _add_letter_left(self, event):
         self._add_hit(
             {'x': event.x, 'y': event.y},
@@ -221,6 +259,7 @@ class App:
             'red',
             True
         )
+        self._draw_percent()
 
     def _add_letter_right(self, event):
         self._add_hit(
@@ -230,6 +269,7 @@ class App:
             'blue',
             True
         )
+        self._draw_percent()
 
     def _add_hit(self, pos, type, side, color, save_hit=False):
         for round_selected in self.rounds_selected:
