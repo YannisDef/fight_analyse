@@ -1,8 +1,11 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import filedialog as fd
+
 import pickle
-from sys import argv
 import json
+import os
+from sys import argv
 from timeit import default_timer
 
 JAB = 0
@@ -27,23 +30,33 @@ HIT_TYPE = [
 ]
 
 # TODO: feat
-# - regrouper les hits proches
-# - trouver un moyen de différencier les coups gauches des coups droits
-# - afficher les pourcentages de degat
 # - faire un graphique de représentation des hits
 # - systeme de notation hexagonal du combattant
-# - petit bouton des yeux pour ne pas prendre en compte certains coups
+# - systeme de creation de pdf
+# - compter le nombre de takedown
+# - systeme d'ouverture de fichier ...
 
 # TODO: Optimisation
-# - je pense qu'on peut optimiser le code car je recréer a chaque tour de boucle
+# - je pense qu'on peut optimiser le code car je recréer certaines variables a chaque tour de boucle
+
+# TODO: Style
+#// - trouver un moyen de différencier les coups gauches des coups droits
+# - regrouper les hits proches
+# - Faire des plus beaux boutons que les Show -> faire des yeux
+# - Modifier le style complet de l'app (couleurs, style, ...)
+# - Organiser mieux les boutons et modules...
 
 # autopep8 -i app.py
+
 
 class App:
     def __init__(self, config=None):
         self.root = tk.Tk()
         self.root.geometry("900x1080")
         self.root.title('Fight Analyse')
+
+        photo = tk.PhotoImage(file="assets/icon.png")
+        self.root.iconphoto(False, photo)
 
         self.empty_body_path = 'assets/model_body.png'
         self.champs = {
@@ -58,7 +71,8 @@ class App:
             'hits': [[], [], [], [], []],
             'ground_control': None
         }
-        self.previous_hits = [] # list for CTRL+y / CTRL+z
+        self.previous_hits = []  # list for CTRL+y / CTRL+z
+        self.hit_to_hide = []
 
         self.start_time = None
         self.is_running = False
@@ -66,9 +80,11 @@ class App:
         self.time_var.set("00:00:00")
 
         if config is not None:
-            self._load(config)        
+            self._load(config)
 
-        self.hit_percent_label = tk.Label(self.root, text = self._get_percent_of_hits())
+        self.hit_percent_label = tk.Label(self.root,
+                                          text=self._get_nb_and_percent_of_hits(),
+                                          justify=tk.LEFT)
 
         self._create_gui()
 
@@ -112,10 +128,17 @@ class App:
         #####
 
         # HIT BUTTONS
+        button_frame = tk.Frame(self.root)
         for i, rb_label in enumerate(HIT_TYPE):
-            rb = ttk.Radiobutton(left_frame, text=rb_label,
-                                 value=i, variable=self.champs['hit_type'])
-            rb.pack()
+            toggle_btn = tk.Button(
+                button_frame, text='Show', command=lambda i=i: self._hide_hit(i))
+            toggle_btn.grid(row=i, column=0, sticky='w')
+
+            rb = ttk.Radiobutton(button_frame, text=rb_label,
+                                 value=i, variable=self.champs['hit_type'],
+                                 style='Wild.TRadiobutton')
+            rb.grid(row=i, column=1, sticky='w')
+        button_frame.pack(side=tk.LEFT)
         #####
 
         # Chrono
@@ -141,8 +164,8 @@ class App:
         self.commentary_entry.pack(side=tk.RIGHT)
         #####
 
-        # PERCENT OF HITS
-        self._draw_percent()
+        # NUMBER OF HITS
+        self._draw_hit_data()
         #####
 
         self.right_frame.pack(side=tk.RIGHT)
@@ -155,17 +178,56 @@ class App:
         self.root.bind_all("<Control-z>", self._undo)
         #####
 
-    def _draw_percent(self):
-        self.hit_percent_label.config(text=(str(self._get_percent_of_hits())))
-        self.hit_percent_label.pack()
+        # open_button = ttk.Button(
+        #     self.root,
+        #     text='Open a File',
+        #     command=self._select_file
+        # )
 
-    def _get_percent_of_hits(self, to_string=True):
-        n_hit_list = [{'n': 0, 'type': hit_t } for hit_t in HIT_TYPE]
+        # open_button.pack(expand=True)
+
+    # def _select_file(self):
+    #     filetypes = (
+    #         ('text files', '*.plk')
+    #     )
+
+    #     filename = fd.askopenfilename(
+    #         title='Open a file',
+    #         initialdir=os.getcwd(),
+    #         filetypes=filetypes)
+
+    #     tk.messagebox.showinfo(
+    #         title='Selected File',
+    #         message=filename
+    #     )
+
+    def _hide_hit(self, hit):
+        if hit in self.hit_to_hide:
+            self.hit_to_hide.remove(hit)
+        else:
+            self.hit_to_hide.append(hit)
+        self._draw_hits()
+
+    def _draw_hit_data(self):
+        self.hit_percent_label.config(text=(str(self._get_nb_and_percent_of_hits())))
+        self.hit_percent_label.pack(side=tk.LEFT)
+
+    def _get_nb_and_percent_of_hits(self, to_string=True):
+        n_hit_list = [{'n': 0, 'type': hit_t, 'percent': 0} for hit_t in HIT_TYPE]
 
         # count how many hit
-        for round in self.rounds_selected:
-            for i in range(len(self.memory['hits'][round])):
-                n_hit_list[HIT_TYPE.index(self.memory['hits'][round][i]['type'])]['n'] += 1
+        for _round in self.rounds_selected:
+            for i in range(len(self.memory['hits'][_round])):
+                n_hit_list[HIT_TYPE.index(
+                    self.memory['hits'][_round][i]['type'])]['n'] += 1
+
+        # get percent of each hit
+        n_hit = sum([case['n'] for case in n_hit_list])
+        for i in range(len(n_hit_list)):
+            try:
+                n_hit_list[i]['percent'] = round((n_hit_list[i]['n'] * 100) / n_hit, 1)
+            except ZeroDivisionError:
+                n_hit_list[i]['percent'] = 0
 
         # sort list
         for i in range(len(n_hit_list)):
@@ -173,12 +235,12 @@ class App:
                 if n_hit_list[i]['n'] > n_hit_list[j]['n']:
                     n_hit_list[i], n_hit_list[j] = n_hit_list[j], n_hit_list[i]
 
-        # create string with list
+        # create cool string to show with list
         if to_string:
-            r_value = ''
+            string_to_show = ''
             for case in n_hit_list:
-                r_value += (str(case['n']) + ' ' + case['type'] + '\n')
-            return r_value
+                string_to_show += str(case['percent']) + '% - ' + (str(case['n']) + ' ' + case['type'] + '\n')
+            return string_to_show
         else:
             return n_hit_list
 
@@ -188,7 +250,7 @@ class App:
         else:
             if self.start_time is None:
                 self.start_time = \
-                default_timer() - float(self.time_var.get().replace(":", ""))
+                    default_timer() - float(self.time_var.get().replace(":", ""))
             self.is_running = True
             self._update_time()
 
@@ -210,27 +272,28 @@ class App:
             hit_to_redo = self.previous_hits.pop()
             for round in self.rounds_selected:
                 self.memory['hits'][round].append(hit_to_redo)
-                self._redraw()
-            self._draw_percent()
+                self._draw_hits()
+            self._draw_hit_data()
 
     def _undo(self, event=None):
         for round in self.rounds_selected:
             if len(self.memory['hits'][round]) >= 1:
                 hit_deleted = self.memory['hits'][round].pop()
                 self.previous_hits.append(hit_deleted)
-                self._redraw()
-        self._draw_percent()
+                self._draw_hits()
+        self._draw_hit_data()
 
-    def _redraw(self):
+    def _draw_hits(self):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
         for round in self.rounds_selected:
             for i in range(len(self.memory['hits'][round])):
-                self._add_hit(
-                    self.memory['hits'][round][i]['pos'],
-                    self.memory['hits'][round][i]['type'],
-                    self.memory['hits'][round][i]['side'],
-                    self.memory['hits'][round][i]['color']
-                )
+                if not HIT_TYPE.index(self.memory['hits'][round][i]['type']) in self.hit_to_hide:
+                    self._add_hit(
+                        self.memory['hits'][round][i]['pos'],
+                        self.memory['hits'][round][i]['type'],
+                        self.memory['hits'][round][i]['side'],
+                        self.memory['hits'][round][i]['color']
+                    )
 
     def _select_round_click(self, button_index):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
@@ -240,16 +303,8 @@ class App:
             self.rounds_selected.append(button_index)
 
         # Draw only hits of rounds selected
-        self._redraw()
-        # for round in self.rounds_selected:
-        #     for i in range(len(self.memory['hits'][round])):
-        #         self._add_hit(
-        #             self.memory['hits'][round][i]['pos'],
-        #             self.memory['hits'][round][i]['type'],
-        #             self.memory['hits'][round][i]['side'],
-        #             self.memory['hits'][round][i]['color']
-        #         )
-        self._draw_percent()
+        self._draw_hits()
+        self._draw_hit_data()
 
     def _add_letter_left(self, event):
         self._add_hit(
@@ -259,7 +314,7 @@ class App:
             'red',
             True
         )
-        self._draw_percent()
+        self._draw_hit_data()
 
     def _add_letter_right(self, event):
         self._add_hit(
@@ -269,7 +324,7 @@ class App:
             'blue',
             True
         )
-        self._draw_percent()
+        self._draw_hit_data()
 
     def _add_hit(self, pos, type, side, color, save_hit=False):
         for round_selected in self.rounds_selected:
