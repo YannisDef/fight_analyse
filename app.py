@@ -1,12 +1,20 @@
+# https://customtkinter.tomschimansky.com/documentation/widgets/textbox
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog as fd
 
 import pickle
 import json
-import os
 from sys import argv
 from timeit import default_timer
+import customtkinter
+
+# !
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+import numpy as np
+# !
 
 JAB = 0
 HOOK = 1
@@ -30,11 +38,14 @@ HIT_TYPE = [
 ]
 
 # TODO: feat
-# - compter le nombre de takedown
+#// - compter le nombre de takedown
+#// - recalculer les % quand on cache un coup
+#!- Probleme chrono ground control
 # - faire un graphique de représentation des hits
 # - systeme de notation hexagonal du combattant
 # - systeme de creation de pdf
 # - systeme d'ouverture de fichier ...
+# - entrer les stats des deux combattans (age, poids, ...)
 
 # TODO: Optimisation
 # - je pense qu'on peut optimiser le code car je recréer certaines variables a chaque tour de boucle
@@ -42,31 +53,35 @@ HIT_TYPE = [
 
 # TODO: Style
 #// - trouver un moyen de différencier les coups gauches des coups droits
+# - Faire des plus beaux boutons que les Show -> faire des yeux
 # - regrouper les hits proches
 # - Legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
-# - Faire des plus beaux boutons que les Show -> faire des yeux
-# - Modifier le style complet de l'app (couleurs, style, ...)
+# - Modifier le style complet de l'app (couleurs, style, ...) / theme.json
 # - Organiser mieux les boutons et modules...
-
-# autopep8 -i app.py
-
 
 class App:
     def __init__(self, config=None):
-        self.root = tk.Tk()
-        self.root.geometry("900x1080")
+        self.root = customtkinter.CTk()
+        self.root.geometry("1920x1080")
+        customtkinter.set_appearance_mode("dark")
+        customtkinter.set_default_color_theme("theme.json")
         self.root.title('Fight Analyse')
 
         photo = tk.PhotoImage(file="assets/icon.png")
         self.root.iconphoto(False, photo)
 
-        self.empty_body_path = 'assets/model_body.png'
+        self.empty_body_path = 'assets/model_body.png' # 171 * 549
         self.champs = {
             'hit_type': tk.IntVar(),
             'selected_rounds': tk.StringVar(),
         }
         # My variables
-        self.rounds_selected = []
+        self.left_frame = customtkinter.CTkFrame(self.root)
+
+        self.canvas = tk.Canvas(self.left_frame, width=171, height=549)
+        self.img = tk.PhotoImage(file=self.empty_body_path)
+        
+        self.rounds_selected = [0]
         self.memory = {
             'filename': None,
             'commentary': None,
@@ -96,96 +111,144 @@ class App:
         self.root.mainloop()
 
     def _create_gui(self):
-        # BUTTONS
-        debug_button = tk.Button(self.root, text="Debug", command=self._debug)
-        debug_button.pack(side=tk.BOTTOM)
-
-        save_button = tk.Button(self.root, text="Save", command=self._save)
-        save_button.pack(side=tk.BOTTOM)
-        #####
-
         # TITRE
-        self.title_entry = tk.Entry(self.root, width=70)
+        self.title_entry = customtkinter.CTkEntry(self.root, width=400, placeholder_text='Title')
         if self.memory['filename']:  # ! Ca peut peter car j'ai mis = None
             self.title_entry.insert(tk.INSERT, self.memory['filename'][:-4])
         self.title_entry.pack()
         #####
 
-        # left_frame = tk.Frame(self.root, bg='BLUE')
-        left_frame = tk.Frame(self.root)
+        # # BUTTONS
+        debug_button = customtkinter.CTkButton(self.root, text="Debug", command=self._debug)
+        debug_button.pack(side=tk.BOTTOM)
+
+        save_button = customtkinter.CTkButton(self.root, text="Save", command=self._save)
+        save_button.pack(side=tk.BOTTOM)
+        # #####
+
+#! -----------------------------------------------------------------------------
+
+        # x_positions = [item["pos"]["x"] for item in self.memory['hits'][0]]
+        # y_positions = [item["pos"]["y"] for item in self.memory['hits'][0]]
+
+
+        # # Changer la taille du graphique en pixels
+        # dpi = 100  # points par pouce (DPI)
+        # width, height = 171, 549  # dimensions en pixels
+        # figsize = width / dpi, height / dpi
+
+        # # Créer une grille pour représenter la densité des points
+        # grid, xedges, yedges = np.histogram2d(x_positions, y_positions, bins=(width, height), range=[[0, width], [0, height]])
+        # extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+
+        # # Créer le graphique avec une échelle de couleur basée sur la densité
+        # fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        # im = ax.imshow(grid.T, extent=extent, origin='lower', cmap='Reds', alpha=0.7)
+        # ax.set_xlabel('Position X')
+        # ax.set_ylabel('Position Y')
+        # ax.set_title('Graphique des Positions')
+
+        # # Ajouter une barre de couleur (colorbar)
+        # cbar = fig.colorbar(im, ax=ax, label='Densité')
+
+        # # Inverser l'axe Y
+        # ax.invert_yaxis()
+
+        # # Créer la fenêtre Tkinter pour afficher le graphique
+        # root = tk.Tk()
+        # root.title('Graphique des Positions')
+
+        # # Incorporer le graphique dans la fenêtre Tkinter
+        # canvas = FigureCanvasTkAgg(fig, master=root)
+        # canvas_widget = canvas.get_tk_widget()
+        # canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+        # # Ajouter un bouton de fermeture de fenêtre
+        # close_button = tk.Button(root, text='Fermer', command=root.destroy)
+        # close_button.pack(side=tk.BOTTOM)
+
+#! -----------------------------------------------------------------------------
+
         # ROUNDS
         for i in range(5):
             button_text = "Round {}".format(i+1)
-            button = tk.Checkbutton(
-                left_frame, text=button_text,
+            round_checkbox = customtkinter.CTkCheckBox(
+                self.left_frame, text=button_text,
                 variable=tk.IntVar(),
                 command=lambda i=i: self._select_round_click(i)
             )
-            button.pack()
+            if i == 0:
+                round_checkbox.select()
+            round_checkbox.pack()
         #####
 
         # PICTURE
-        self.canvas = tk.Canvas(left_frame, width=171, height=549)
         self.canvas.pack()
-
-        self.img = tk.PhotoImage(file=self.empty_body_path)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
         #####
 
-        # HIT BUTTONS
-        button_frame = tk.Frame(self.root)
+       # HIT BUTTONS
+        button_frame = customtkinter.CTkFrame(self.root)
         for i, rb_label in enumerate(HIT_TYPE):
-            toggle_btn = tk.Button(
-                button_frame, text='Show', command=lambda i=i: self._hide_hit(i))
-            toggle_btn.grid(row=i, column=0, sticky='w')
+            show_hit_switch = customtkinter.CTkSwitch(button_frame, text='',
+                command=lambda i=i: self._hide_hit(i), width=35, height=25)
+            show_hit_switch.grid(row=i, column=0, sticky='w')
+            show_hit_switch.select()  # turn on by default the switch
 
-            rb = ttk.Radiobutton(button_frame, text=rb_label,
-                                 value=i, variable=self.champs['hit_type'],
-                                 style='Wild.TRadiobutton')
+            rb = customtkinter.CTkRadioButton(button_frame, text=rb_label,
+                                value=i, variable=self.champs['hit_type'])
             rb.grid(row=i, column=1, sticky='w')
 
-        nb_takedown = tk.Label(self.root,
-            textvariable=self.takedown, font=("Helvetica", 16))
-        del_takedown_button = tk.Button(self.root,
-            text="-", command=lambda i=-1:self._update_takedown(i))
-        add_takedown_button = tk.Button(self.root,
-            text="+", command=lambda i=1:self._update_takedown(i))
+        # Conteneur pour les boutons de takedown
+        takedown_frame = customtkinter.CTkFrame(self.root)
 
-        del_takedown_button.pack(side=tk.LEFT)
-        nb_takedown.pack(side=tk.LEFT)
-        add_takedown_button.pack(side=tk.LEFT)
+        nb_takedown = customtkinter.CTkLabel(takedown_frame,
+            textvariable=self.takedown, font=("Helvetica", 16),)
+        del_takedown_button = customtkinter.CTkButton(takedown_frame,
+            text="-", command=lambda i=-1: self._update_takedown(i),
+            width=35, height=25)
+        add_takedown_button = customtkinter.CTkButton(takedown_frame,
+            text="+", command=lambda i=1: self._update_takedown(i),
+            width=35, height=25)
 
+        # Pack les boutons de takedown dans le conteneur takedown_frame
+        del_takedown_button.pack(side=tk.BOTTOM)
+        nb_takedown.pack(side=tk.BOTTOM)
+        add_takedown_button.pack(side=tk.BOTTOM)
+
+        # Pack le conteneur des boutons de takedown sous le conteneur des boutons HIT
         button_frame.pack(side=tk.LEFT)
-        #####
+        takedown_frame.pack(side=tk.LEFT)
 
         # Chrono
-        self.time_label = tk.Label(
-            left_frame, textvariable=self.time_var, font=("Helvetica", 24))
+        self.time_label = customtkinter.CTkLabel(
+            self.left_frame, textvariable=self.time_var, font=("Helvetica", 24))
         self.time_label.pack()
 
         # Button to start/stop the timer
-        self.start_stop_button = tk.Button(
-            left_frame, text="Start/Stop", command=self._start_stop_timer)
-        self.start_stop_button.pack()
-        self.reset = tk.Button(
-            left_frame, text="Reset", command=self._reset_timer)
-        self.reset.pack()
+        self.start_stop_button = customtkinter.CTkButton(
+            self.left_frame, text="Start/Stop", command=self._start_stop_timer)
+        self.reset_button = customtkinter.CTkButton(
+            self.left_frame, text="Reset", command=self._reset_timer)
+        self.start_stop_button.pack(padx=20, pady=10)
+        self.reset_button.pack(padx=20, pady=10)
         #####
-        left_frame.pack(side=tk.LEFT)
+        self.left_frame.pack(side=tk.LEFT)
 
-        self.right_frame = tk.Frame(self.root, bg='RED')
+        self.right_frame = customtkinter.CTkFrame(self.root)
         # COMMENTARY
-        self.commentary_entry = tk.Text(self.right_frame)
+        self.commentary_entry = customtkinter.CTkTextbox(self.right_frame,
+                                                         width=1000,
+                                                         height=400)
         if self.memory['commentary']:
             self.commentary_entry.insert(tk.INSERT, self.memory['commentary'])
-        self.commentary_entry.pack(side=tk.RIGHT)
+        self.commentary_entry.pack()
         #####
+        self.right_frame.pack(side=tk.RIGHT)
 
         # NUMBER OF HITS
         self._draw_hit_data()
         #####
-
-        self.right_frame.pack(side=tk.RIGHT)
 
         # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
@@ -195,42 +258,21 @@ class App:
         self.root.bind_all("<Control-z>", self._undo)
         #####
 
-        # open_button = ttk.Button(
-        #     self.root,
-        #     text='Open a File',
-        #     command=self._select_file
-        # )
-
-        # open_button.pack(expand=True)
-
-    # def _select_file(self):
-    #     filetypes = (
-    #         ('text files', '*.plk')
-    #     )
-
-    #     filename = fd.askopenfilename(
-    #         title='Open a file',
-    #         initialdir=os.getcwd(),
-    #         filetypes=filetypes)
-
-    #     tk.messagebox.showinfo(
-    #         title='Selected File',
-    #         message=filename
-    #     )
-
     def _hide_hit(self, hit):
         if hit in self.hit_to_hide:
             self.hit_to_hide.remove(hit)
         else:
             self.hit_to_hide.append(hit)
         self._draw_hits()
+        self._draw_hit_data()
 
     def _update_takedown(self, value):
         self.memory['takedown'] += value
         self.takedown.set(self.memory['takedown'])
 
     def _draw_hit_data(self):
-        self.hit_percent_label.config(text=(str(self._get_nb_and_percent_of_hits())))
+        self._draw_hits() # ca fonctionne mais peut etre pas la meilleure chose
+        self.hit_percent_label.config(text=self._get_nb_and_percent_of_hits())
         self.hit_percent_label.pack(side=tk.LEFT)
 
     def _get_nb_and_percent_of_hits(self, to_string=True):
@@ -239,6 +281,8 @@ class App:
         # count how many hit
         for _round in self.rounds_selected:
             for i in range(len(self.memory['hits'][_round])):
+                if HIT_TYPE.index(self.memory['hits'][_round][i]['type']) in self.hit_to_hide:
+                    continue
                 n_hit_list[HIT_TYPE.index(
                     self.memory['hits'][_round][i]['type'])]['n'] += 1
 
@@ -260,7 +304,7 @@ class App:
         if to_string:
             string_to_show = ''
             for case in n_hit_list:
-                string_to_show += str(case['percent']) + '% - ' + (str(case['n']) + ' ' + case['type'] + '\n')
+                string_to_show += str(case['percent']) + '% - ' + str(case['n']) + ' ' + str(case['type']) + '\n'
             return string_to_show
         else:
             return n_hit_list
@@ -270,8 +314,8 @@ class App:
             self.is_running = False
         else:
             if self.start_time is None:
-                self.start_time = \
-                    default_timer() - float(self.time_var.get().replace(":", ""))
+                time_str = self.time_var.get().replace(":", "")
+                self.start_time = default_timer() - float(time_str)
             self.is_running = True
             self._update_time()
 
@@ -366,7 +410,7 @@ class App:
         self.memory['filename'] = self.title_entry.get() + '.plk'
         self.memory['commentary'] = self.commentary_entry.get('1.0', tk.END)
         self.memory['ground_control'] = self.time_var.get()
-        with open(str(self.title_entry.get()) + '.plk', 'wb') as file:
+        with open('saves/' + str(self.title_entry.get()) + '.plk', 'wb') as file:
             pickle.dump(self.memory, file)
         print('saving with name: ' + str(self.title_entry.get()) + '.plk')
 
