@@ -30,18 +30,20 @@ HIT_TYPE = [
 ]
 
 # TODO: feat
+# - compter le nombre de takedown
 # - faire un graphique de représentation des hits
 # - systeme de notation hexagonal du combattant
 # - systeme de creation de pdf
-# - compter le nombre de takedown
 # - systeme d'ouverture de fichier ...
 
 # TODO: Optimisation
 # - je pense qu'on peut optimiser le code car je recréer certaines variables a chaque tour de boucle
+# - il y a des problemes avec la variable self.champs
 
 # TODO: Style
 #// - trouver un moyen de différencier les coups gauches des coups droits
 # - regrouper les hits proches
+# - Legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
 # - Faire des plus beaux boutons que les Show -> faire des yeux
 # - Modifier le style complet de l'app (couleurs, style, ...)
 # - Organiser mieux les boutons et modules...
@@ -69,10 +71,12 @@ class App:
             'filename': None,
             'commentary': None,
             'hits': [[], [], [], [], []],
+            'takedown': 0,
             'ground_control': None
         }
         self.previous_hits = []  # list for CTRL+y / CTRL+z
         self.hit_to_hide = []
+        self.takedown = tk.IntVar()
 
         self.start_time = None
         self.is_running = False
@@ -82,10 +86,11 @@ class App:
         if config is not None:
             self._load(config)
 
-        self.hit_percent_label = tk.Label(self.root,
-                                          text=self._get_nb_and_percent_of_hits(),
-                                          justify=tk.LEFT)
-
+        self.hit_percent_label = tk.Label(
+            self.root,
+            text=self._get_nb_and_percent_of_hits(),
+            justify=tk.LEFT
+        )
         self._create_gui()
 
         self.root.mainloop()
@@ -138,13 +143,25 @@ class App:
                                  value=i, variable=self.champs['hit_type'],
                                  style='Wild.TRadiobutton')
             rb.grid(row=i, column=1, sticky='w')
+
+        nb_takedown = tk.Label(self.root,
+            textvariable=self.takedown, font=("Helvetica", 16))
+        del_takedown_button = tk.Button(self.root,
+            text="-", command=lambda i=-1:self._update_takedown(i))
+        add_takedown_button = tk.Button(self.root,
+            text="+", command=lambda i=1:self._update_takedown(i))
+
+        del_takedown_button.pack(side=tk.LEFT)
+        nb_takedown.pack(side=tk.LEFT)
+        add_takedown_button.pack(side=tk.LEFT)
+
         button_frame.pack(side=tk.LEFT)
         #####
 
         # Chrono
         self.time_label = tk.Label(
             left_frame, textvariable=self.time_var, font=("Helvetica", 24))
-        self.time_label.pack(pady=20)
+        self.time_label.pack()
 
         # Button to start/stop the timer
         self.start_stop_button = tk.Button(
@@ -207,6 +224,10 @@ class App:
         else:
             self.hit_to_hide.append(hit)
         self._draw_hits()
+
+    def _update_takedown(self, value):
+        self.memory['takedown'] += value
+        self.takedown.set(self.memory['takedown'])
 
     def _draw_hit_data(self):
         self.hit_percent_label.config(text=(str(self._get_nb_and_percent_of_hits())))
@@ -366,6 +387,7 @@ class App:
                     self.memory['hits'][i][j]['color']
                 )
         self.time_var.set(self.memory['ground_control'])
+        self.takedown.set(self.memory['takedown'])
 
     def _debug(self):
         print(f"Title: {self.title_entry.get()}")
