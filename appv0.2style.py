@@ -1,3 +1,5 @@
+# https://customtkinter.tomschimansky.com/documentation/widgets/textbox
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog as fd
@@ -29,6 +31,26 @@ HIT_TYPE = [
     "Elbow",
     "Knee",
 ]
+
+# TODO: feat
+#// - compter le nombre de takedown
+# - faire un graphique de représentation des hits
+# - systeme de notation hexagonal du combattant
+# - systeme de creation de pdf
+# - systeme d'ouverture de fichier ...
+# - recalculer les % quand on cache un coup
+
+# TODO: Optimisation
+# - je pense qu'on peut optimiser le code car je recréer certaines variables a chaque tour de boucle
+# - il y a des problemes avec la variable self.champs
+
+# TODO: Style
+#// - trouver un moyen de différencier les coups gauches des coups droits
+# - regrouper les hits proches
+# - Legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
+# - Faire des plus beaux boutons que les Show -> faire des yeux
+# - Modifier le style complet de l'app (couleurs, style, ...)
+# - Organiser mieux les boutons et modules...
 
 class App:
     def __init__(self, config=None):
@@ -116,20 +138,23 @@ class App:
         # HIT BUTTONS
         button_frame = customtkinter.CTkFrame(self.root)
         for i, rb_label in enumerate(HIT_TYPE):
-            toggle_btn = customtkinter.CTkButton(
-                button_frame, text='Show', command=lambda i=i: self._hide_hit(i))
-            toggle_btn.grid(row=i, column=0, sticky='w')
+            show_hit_switch = customtkinter.CTkSwitch(button_frame, text='',
+                command=lambda i=i: self._hide_hit(i), width=35, height=25)
+            show_hit_switch.grid(row=i, column=0, sticky='w')
+            show_hit_switch.select() # turn on by default the switch
 
             rb = customtkinter.CTkRadioButton(button_frame, text=rb_label,
                                 value=i, variable=self.champs['hit_type'])
             rb.grid(row=i, column=1, sticky='w')
 
         nb_takedown = customtkinter.CTkLabel(self.root,
-            textvariable=self.takedown, font=("Helvetica", 16))
+            textvariable=self.takedown, font=("Helvetica", 16),)
         del_takedown_button = customtkinter.CTkButton(self.root,
-            text="-", command=lambda i=-1:self._update_takedown(i))
+            text="-", command=lambda i=-1:self._update_takedown(i),
+            width=35, height=25)
         add_takedown_button = customtkinter.CTkButton(self.root,
-            text="+", command=lambda i=1:self._update_takedown(i))
+            text="+", command=lambda i=1:self._update_takedown(i),
+            width=35, height=25)
 
         del_takedown_button.pack(side=tk.LEFT)
         nb_takedown.pack(side=tk.LEFT)
@@ -161,41 +186,18 @@ class App:
         #####
 
         # NUMBER OF HITS
-        # self._draw_hit_data()
+        self._draw_hit_data()
         #####
 
         self.right_frame.pack(side=tk.RIGHT)
 
         # EVENTS
-        # self.canvas.bind("<Button-1>", self._add_letter_left)
-        # self.canvas.bind("<Button-3>", self._add_letter_right)
+        self.canvas.bind("<Button-1>", self._add_letter_left)
+        self.canvas.bind("<Button-3>", self._add_letter_right)
 
-        # self.root.bind_all("<Control-y>", self._redo)
-        # self.root.bind_all("<Control-z>", self._undo)
+        self.root.bind_all("<Control-y>", self._redo)
+        self.root.bind_all("<Control-z>", self._undo)
         #####
-
-        # open_button = tcustomtkinter.CTkButton(
-        #     self.root,
-        #     text='Open a File',
-        #     command=self._select_file
-        # )
-
-        # open_button.pack(expand=True)
-
-    # def _select_file(self):
-    #     filetypes = (
-    #         ('text files', '*.plk')
-    #     )
-
-    #     filename = fd.askopenfilename(
-    #         title='Open a file',
-    #         initialdir=os.getcwd(),
-    #         filetypes=filetypes)
-
-    #     tk.messagebox.showinfo(
-    #         title='Selected File',
-    #         message=filename
-    #     )
 
     def _hide_hit(self, hit):
         if hit in self.hit_to_hide:
@@ -203,6 +205,7 @@ class App:
         else:
             self.hit_to_hide.append(hit)
         self._draw_hits()
+        self._draw_hit_data()
 
     def _update_takedown(self, value):
         self.memory['takedown'] += value
@@ -218,6 +221,8 @@ class App:
         # count how many hit
         for _round in self.rounds_selected:
             for i in range(len(self.memory['hits'][_round])):
+                if HIT_TYPE.index(self.memory['hits'][_round][i]['type']) in self.hit_to_hide:
+                    continue
                 n_hit_list[HIT_TYPE.index(
                     self.memory['hits'][_round][i]['type'])]['n'] += 1
 
