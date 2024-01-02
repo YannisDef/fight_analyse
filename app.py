@@ -38,12 +38,15 @@ HIT_TYPE = [
 # TODO: feat
 #// - compter le nombre de takedown
 #// - recalculer les % quand on cache un coup
+#// - systeme de commentaire par defaut
 #!- Probleme chrono ground control
 # - faire un graphique de représentation des hits
 # - systeme de notation hexagonal du combattant
 # - systeme de creation de pdf
 # - systeme d'ouverture de fichier ...
-# - entrer les stats des deux combattans (age, poids, ...)
+# - afficher le pourcentage de droite et de gauche
+# - afficher nombre de coup au corps, tete, jambes
+# - entrer les stats des deux combattans (age, poids, garde, ...)
 
 # TODO: Optimisation
 #// - je pense qu'on peut optimiser le code car je recréer certaines variables a chaque tour de boucle
@@ -56,13 +59,13 @@ HIT_TYPE = [
 # - regrouper les hits proches
 # - Legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
 # - Modifier le style complet de l'app (couleurs, style, ...) / theme.json
-# - Organiser mieux les boutons et modules...
+# - Faire un schema bien organisé du style de l'app
+    # - Organiser mieux les boutons et modules... surement en utilisant full grid
 
 class App:
     def __init__(self, config=None):
-        self.root = customtkinter.CTk()
-
         # setup window
+        self.root = customtkinter.CTk()
         self.root.title('Fight Analyse')
         self.root.iconphoto(False, tk.PhotoImage(file="assets/icon.png"))
         self.root.geometry("1920x1080")
@@ -95,8 +98,11 @@ class App:
         self.commentary_entry = customtkinter.CTkTextbox(
             self.right_frame,
             width=1000,
-            height=400
+            height=400,
         )
+        if config is None:
+            with open("assets/model_commentary_entry.txt", "r") as txt_file:
+                self.commentary_entry.insert("0.0", txt_file.read())
 
         # button
         self.debug_button = customtkinter.CTkButton(self.root, text="Debug", command=self._debug)
@@ -129,25 +135,26 @@ class App:
         for i, _ in enumerate(HIT_TYPE):
             self.rb[i].grid(row=i, column=1, sticky='w')
 
-        self.del_takedown_button.pack(side=tk.BOTTOM)
-        self.nb_takedown.pack(side=tk.BOTTOM)
-        self.add_takedown_button.pack(side=tk.BOTTOM)
-
-        self.button_frame.pack(side=tk.LEFT)
-        self.takedown_frame.pack(side=tk.LEFT)
-
         self.time_label.pack()
 
         self.start_stop_button.pack(padx=20, pady=10)
         self.reset_button.pack(padx=20, pady=10)
 
-        self.left_frame.pack(side=tk.LEFT)
-
         self.commentary_entry.pack()
 
+        self.label = customtkinter.CTkLabel(self.takedown_frame, text="Takedown", fg_color="transparent")
+        self.label.grid(                row=0, column=1, padx=5, pady=1, sticky="w")
+        self.del_takedown_button.grid(  row=1, column=0, padx=5, pady=5, sticky="w")
+        self.nb_takedown.grid(          row=1, column=1, padx=5, pady=5, sticky="w")
+        self.add_takedown_button.grid(  row=1, column=2, padx=5, pady=5, sticky="w")
+
+        self.button_frame.pack(side=tk.LEFT)
+        self.left_frame.pack(side=tk.LEFT)
         self.right_frame.pack(side=tk.RIGHT)
+        self.takedown_frame.pack(side=tk.LEFT)
 
         self._draw_hit_data()
+        self.hit_percent_label.pack(side=tk.LEFT) # lui est peut etre dans la fonction juste au dessus
 
         # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
@@ -246,7 +253,6 @@ class App:
     def _draw_hit_data(self):
         self._draw_hits() # ca fonctionne mais peut etre pas la meilleure chose
         self.hit_percent_label.config(text=self._get_nb_and_percent_of_hits())
-        self.hit_percent_label.pack(side=tk.LEFT)
 
     def _get_nb_and_percent_of_hits(self, to_string=True):
         n_hit_list = [{'n': 0, 'type': hit_t, 'percent': 0} for hit_t in HIT_TYPE]

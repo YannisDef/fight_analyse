@@ -1,0 +1,7 @@
+- Heavyweight -
+Fighter A #rank | v-d-nc, x'x'', x LBS, x", +x Underdog
+Fighter B #rank | v-d-nc, x'x'', x LBS, x", -x Favorite
+
+Winner: Fighter x by x
+
+Comments:
