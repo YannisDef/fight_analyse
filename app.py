@@ -320,7 +320,7 @@ class App:
         if to_string:
             string_to_show = ''
             string_to_show += str(percent_of_head_hit) + '% (' + str(n_hit_target['head']) + ') head | ' + str(percent_of_body_hit) + '% (' + str(n_hit_target['body']) + ') body | ' + str(percent_of_legs_hit) + '% (' + str(n_hit_target['leg']) + ') leg\n\n'
-            string_to_show += str(percent_of_left_hit) + '% (' + str(n_hit_side['left']) + ') lefts | ' + str(100 - percent_of_left_hit) + '% (' + str(n_hit_side['right']) + ') rights\n\n'
+            string_to_show += str(percent_of_left_hit) + '% (' + str(n_hit_side['left']) + ') lefts | ' + str(100 - percent_of_left_hit if n_hit_side['right'] > 0 else 0) + '% (' + str(n_hit_side['right']) + ') rights\n\n'
             for case in n_hit_list:
                 string_to_show += str(case['percent']) + '% - ' + str(case['n']) + ' ' + str(case['type']) + '\n'
             string_to_show = string_to_show[:-1]
