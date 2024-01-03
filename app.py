@@ -131,11 +131,11 @@ class App:
         # HEADER
         self.header_frame.pack(fill=tk.X)
         self.title_entry.pack(side=tk.LEFT)
-        ########
         
         # BODY
         self.body_frame.pack(fill=tk.BOTH, expand=True)
 
+        # LEFT
         self.left_body_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self._draw_hit_data()
         self.left_hit_choice_frame.pack(side=tk.LEFT)
@@ -155,23 +155,21 @@ class App:
         self.hit_percent_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="w") # lui est peut etre dans la fonction juste au dessus
 
         self.time_label.grid(row=3, column=0, sticky="w")
-        self.start_stop_button.grid(row=3, column=1, sticky="w")
-        self.reset_button.grid(row=3, column=2, sticky="w")
+        self.reset_button.grid(row=4, column=0, sticky="w")
+        self.start_stop_button.grid(row=4, column=1, sticky="w")
 
         self.left_hit_stats_frame.pack(side=tk.LEFT)
 
-        ########
+        # RIGHT
         self.right_body_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.commentary_entry.pack(side=tk.BOTTOM)
-        ########
 
         # FOOTER
         self.footer_frame.pack(fill=tk.X)
         self.debug_button.pack(side=tk.RIGHT)
         self.save_button.pack(side=tk.RIGHT)
-        ########
 
-        # # EVENTS
+        # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
         self.canvas.bind("<Button-3>", self._add_letter_right)
         self.root.bind_all("<Control-y>", self._redo)
@@ -189,10 +187,10 @@ class App:
 
         self.time_label = customtkinter.CTkLabel(
             self.left_hit_stats_frame, textvariable=self.time_var, font=("Helvetica", 24))
-        self.start_stop_button = customtkinter.CTkButton(
-            self.left_hit_stats_frame, text="Start/Stop", command=self._start_stop_timer)
         self.reset_button = customtkinter.CTkButton(
-            self.left_hit_stats_frame, text="Reset", command=self._reset_timer)
+            self.left_hit_stats_frame, text="⏹︎", command=self._reset_timer)
+        self.start_stop_button = customtkinter.CTkButton(
+            self.left_hit_stats_frame, text="⏯︎", command=self._start_stop_timer)
 
     def _start_stop_timer(self):
         if self.is_running:
@@ -272,14 +270,23 @@ class App:
 
     def _get_nb_and_percent_of_hits(self, to_string=True):
         n_hit_list = [{'n': 0, 'type': hit_t, 'percent': 0} for hit_t in HIT_TYPE]
+        n_hit_side = {'left': 0, 'right': 0}
+        n_hit_target = {'head': 0, 'body': 0, 'leg': 0}
 
         # count how many hit
         for _round in self.rounds_selected:
             for i in range(len(self.memory['hits'][_round])):
                 if HIT_TYPE.index(self.memory['hits'][_round][i]['type']) in self.hit_to_hide:
                     continue
-                n_hit_list[HIT_TYPE.index(
-                    self.memory['hits'][_round][i]['type'])]['n'] += 1
+                n_hit_list[HIT_TYPE.index(self.memory['hits'][_round][i]['type'])]['n'] += 1
+                n_hit_side[self.memory['hits'][_round][i]['side']] += 1
+
+                if self.memory['hits'][_round][i]['pos']['y'] < 107:
+                    n_hit_target['head'] += 1
+                elif self.memory['hits'][_round][i]['pos']['y'] < 306:
+                    n_hit_target['body'] += 1
+                else:
+                    n_hit_target['leg'] += 1
 
         # get percent of each hit
         n_hit = sum([case['n'] for case in n_hit_list])
@@ -295,11 +302,28 @@ class App:
                 if n_hit_list[i]['n'] > n_hit_list[j]['n']:
                     n_hit_list[i], n_hit_list[j] = n_hit_list[j], n_hit_list[i]
 
+        try:
+            percent_of_left_hit = round(n_hit_side['left'] * 100 / (n_hit_side['left'] + n_hit_side['right']), 1)
+        except ZeroDivisionError:
+            percent_of_left_hit = 0
+
+        try:
+            percent_of_head_hit = round(n_hit_target['head'] * 100 / (n_hit_target['head'] + n_hit_target['body'] + n_hit_target['leg']), 1)
+            percent_of_body_hit = round(n_hit_target['body'] * 100 / (n_hit_target['head'] + n_hit_target['body'] + n_hit_target['leg']), 1)
+            percent_of_legs_hit = round(n_hit_target['leg'] * 100 / (n_hit_target['head'] + n_hit_target['body'] + n_hit_target['leg']), 1)
+        except ZeroDivisionError:
+            percent_of_head_hit = 0
+            percent_of_body_hit = 0
+            percent_of_legs_hit = 0
+
         # create cool string to show with list
         if to_string:
             string_to_show = ''
+            string_to_show += str(percent_of_head_hit) + '% (' + str(n_hit_target['head']) + ') head | ' + str(percent_of_body_hit) + '% (' + str(n_hit_target['body']) + ') body | ' + str(percent_of_legs_hit) + '% (' + str(n_hit_target['leg']) + ') leg\n\n'
+            string_to_show += str(percent_of_left_hit) + '% (' + str(n_hit_side['left']) + ') lefts | ' + str(100 - percent_of_left_hit) + '% (' + str(n_hit_side['right']) + ') rights\n\n'
             for case in n_hit_list:
                 string_to_show += str(case['percent']) + '% - ' + str(case['n']) + ' ' + str(case['type']) + '\n'
+            string_to_show = string_to_show[:-1]
             return string_to_show
         else:
             return n_hit_list
