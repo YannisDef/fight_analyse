@@ -86,18 +86,21 @@ class App:
         }
 
         # style frame
-        self.right_frame = customtkinter.CTkFrame(self.root)
-        self.left_frame = customtkinter.CTkFrame(self.root)
-        self.button_frame = customtkinter.CTkFrame(self.root)
-        self.takedown_frame = customtkinter.CTkFrame(self.root)
+        self.header_frame = customtkinter.CTkFrame(self.root, fg_color="blue", height=100)
+        self.body_frame = customtkinter.CTkFrame(self.root)
+        self.left_body_frame = customtkinter.CTkFrame(self.body_frame, width=540)
+        self.left_hit_choice_frame = customtkinter.CTkFrame(self.left_body_frame, width=540, fg_color="red")
+        self.left_hit_stats_frame = customtkinter.CTkFrame(self.left_body_frame, width=540, fg_color="red")
+        self.right_body_frame = customtkinter.CTkFrame(self.body_frame, fg_color="red", width=540)
+        self.footer_frame = customtkinter.CTkFrame(self.root, fg_color="blue", height=100)
 
         # interaction block
-        self.title_entry = customtkinter.CTkEntry(self.root, width=400, placeholder_text='Title')
-        self.canvas = tk.Canvas(self.left_frame, width=171, height=549)
+        self.title_entry = customtkinter.CTkEntry(self.header_frame, width=400, placeholder_text='Title')
+        self.canvas = tk.Canvas(self.left_body_frame, width=171, height=549)
         self.body_model = tk.PhotoImage(file='assets/model_body.png') # 171 * 549
         self.commentary_entry = customtkinter.CTkTextbox(
-            self.right_frame,
-            width=1000,
+            self.right_body_frame,
+            width=500, #TODO peut etre augmenter ca
             height=400,
         )
         if config is None:
@@ -105,8 +108,8 @@ class App:
                 self.commentary_entry.insert("0.0", txt_file.read())
 
         # button
-        self.debug_button = customtkinter.CTkButton(self.root, text="Debug", command=self._debug)
-        self.save_button = customtkinter.CTkButton(self.root, text="Save", command=self._save)
+        self.debug_button = customtkinter.CTkButton(self.footer_frame, text="Debug", command=self._debug)
+        self.save_button = customtkinter.CTkButton(self.footer_frame, text="Save", command=self._save)
 
         # setup
         self._setup_chrono()
@@ -120,43 +123,55 @@ class App:
         self._create_gui()
         self.root.mainloop()
 
+################################################################################
+#############################      GUI      ####################################
+################################################################################
+
     def _create_gui(self):
-        self.title_entry.pack()
+        # HEADER
+        self.header_frame.pack(fill=tk.X)
+        self.title_entry.pack(side=tk.LEFT)
+        ########
+        
+        # BODY
+        self.body_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.debug_button.pack(side=tk.BOTTOM)
-        self.save_button.pack(side=tk.BOTTOM)
+        self.left_body_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._draw_hit_data()
+        self.left_hit_choice_frame.pack(side=tk.LEFT)
+        self.canvas.pack(side=tk.LEFT)
 
-        for i in range(5):
-            self.round_checkbox[i].pack()
-
-        # self.canvas.create_image(0, 0, anchor=tk.NW, image=self.body_model)
-        self.canvas.pack()
-
-        for i, _ in enumerate(HIT_TYPE):
+        for i in range(len(HIT_TYPE)):
             self.rb[i].grid(row=i, column=1, sticky='w')
+        for i in range(len(HIT_TYPE), len(HIT_TYPE) + 5):
+            self.round_checkbox[i - len(HIT_TYPE)].grid(row=i, column=0, sticky='w')
 
-        self.time_label.pack()
-
-        self.start_stop_button.pack(padx=20, pady=10)
-        self.reset_button.pack(padx=20, pady=10)
-
-        self.commentary_entry.pack()
-
-        self.label = customtkinter.CTkLabel(self.takedown_frame, text="Takedown", fg_color="transparent")
+        self.label = customtkinter.CTkLabel(self.left_hit_stats_frame, text="Takedown")
         self.label.grid(                row=0, column=1, padx=5, pady=1, sticky="w")
         self.del_takedown_button.grid(  row=1, column=0, padx=5, pady=5, sticky="w")
         self.nb_takedown.grid(          row=1, column=1, padx=5, pady=5, sticky="w")
         self.add_takedown_button.grid(  row=1, column=2, padx=5, pady=5, sticky="w")
 
-        self.button_frame.pack(side=tk.LEFT)
-        self.left_frame.pack(side=tk.LEFT)
-        self.right_frame.pack(side=tk.RIGHT)
-        self.takedown_frame.pack(side=tk.LEFT)
+        self.hit_percent_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="w") # lui est peut etre dans la fonction juste au dessus
 
-        self._draw_hit_data()
-        self.hit_percent_label.pack(side=tk.LEFT) # lui est peut etre dans la fonction juste au dessus
+        self.time_label.grid(row=3, column=0, sticky="w")
+        self.start_stop_button.grid(row=3, column=1, sticky="w")
+        self.reset_button.grid(row=3, column=2, sticky="w")
 
-        # EVENTS
+        self.left_hit_stats_frame.pack(side=tk.LEFT)
+
+        ########
+        self.right_body_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        self.commentary_entry.pack(side=tk.BOTTOM)
+        ########
+
+        # FOOTER
+        self.footer_frame.pack(fill=tk.X)
+        self.debug_button.pack(side=tk.RIGHT)
+        self.save_button.pack(side=tk.RIGHT)
+        ########
+
+        # # EVENTS
         self.canvas.bind("<Button-1>", self._add_letter_left)
         self.canvas.bind("<Button-3>", self._add_letter_right)
         self.root.bind_all("<Control-y>", self._redo)
@@ -173,11 +188,11 @@ class App:
         self.time_var.set("00:00:00")
 
         self.time_label = customtkinter.CTkLabel(
-            self.left_frame, textvariable=self.time_var, font=("Helvetica", 24))
+            self.left_hit_stats_frame, textvariable=self.time_var, font=("Helvetica", 24))
         self.start_stop_button = customtkinter.CTkButton(
-            self.left_frame, text="Start/Stop", command=self._start_stop_timer)
+            self.left_hit_stats_frame, text="Start/Stop", command=self._start_stop_timer)
         self.reset_button = customtkinter.CTkButton(
-            self.left_frame, text="Reset", command=self._reset_timer)
+            self.left_hit_stats_frame, text="Reset", command=self._reset_timer)
 
     def _start_stop_timer(self):
         if self.is_running:
@@ -213,27 +228,28 @@ class App:
         self.hit_to_hide = []
         self.rb = []
         for i, rb_label in enumerate(HIT_TYPE):
-            show_hit_switch = customtkinter.CTkSwitch(self.button_frame, text='',
+            show_hit_switch = customtkinter.CTkSwitch(self.left_hit_choice_frame, text='',
                 command=lambda i=i: self._hide_hit(i), width=35, height=25)
             show_hit_switch.grid(row=i, column=0, sticky='w')
+            # show_hit_switch.pack()
             show_hit_switch.select()  # turn on by default the switch
 
-            tmp = customtkinter.CTkRadioButton(self.button_frame, text=rb_label,
+            tmp = customtkinter.CTkRadioButton(self.left_hit_choice_frame, text=rb_label,
                                 value=i, variable=self.champs['hit_type'])
             self.rb.append(tmp)
 
         self.takedown = tk.IntVar()
-        self.nb_takedown = customtkinter.CTkLabel(self.takedown_frame,
+        self.nb_takedown = customtkinter.CTkLabel(self.left_hit_stats_frame,
             textvariable=self.takedown, font=("Helvetica", 16),)
-        self.del_takedown_button = customtkinter.CTkButton(self.takedown_frame,
+        self.del_takedown_button = customtkinter.CTkButton(self.left_hit_stats_frame,
             text="-", command=lambda i=-1: self._update_takedown(i),
             width=35, height=25)
-        self.add_takedown_button = customtkinter.CTkButton(self.takedown_frame,
+        self.add_takedown_button = customtkinter.CTkButton(self.left_hit_stats_frame,
             text="+", command=lambda i=1: self._update_takedown(i),
             width=35, height=25)
 
         self.hit_percent_label = tk.Label(
-            self.root,
+            self.left_hit_stats_frame,
             text=self._get_nb_and_percent_of_hits(),
             justify=tk.LEFT
         )
@@ -361,7 +377,7 @@ class App:
         for i in range(5):
             button_text = "Round {}".format(i+1)
             round_checkbox = customtkinter.CTkCheckBox(
-                self.left_frame, text=button_text,
+                self.left_hit_choice_frame, text=button_text,
                 variable=tk.IntVar(),
                 command=lambda i=i: self._select_round_click(i)
             )
