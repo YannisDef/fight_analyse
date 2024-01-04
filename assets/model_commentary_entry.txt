@@ -1,7 +1,22 @@
 - Heavyweight -
-Fighter A #rank | v-d-nc, x'x'', x LBS, x", +x Underdog
-Fighter B #rank | v-d-nc, x'x'', x LBS, x", -x Favorite
+Fighter A #unranked | v-d-nc, x'x'', x LBS, x", +x Underdog
+Fighter B #unranked | v-d-nc, x'x'', x LBS, x", -x Favori
 
-Winner: Fighter x by x
+Gagnant: x par x
 
-Comments:
+Plan de jeu:
+
+Commentaire:
+
+Notation (/5):
+Attaque     | /5
+Vitesse     | /5
+Defense     | /5
+Puissance   | /5
+
+Cardio      | /5
+Rythme      | /5
+
+Deplacement | /5
+
+Mental      | /5

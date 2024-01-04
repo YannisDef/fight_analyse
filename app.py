@@ -5,8 +5,10 @@ import tkinter as tk
 import pickle
 import json
 from sys import argv
-from timeit import default_timer
 import customtkinter
+import tkcap
+
+from PIL import Image, ImageTk
 
 # !
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -30,7 +32,7 @@ HIT_TYPE = [
     "Hook",
     "Uppercut",
     "Overhand",
-    "CLMH",
+    "CLMH (Kick)",
     "Elbow",
     "Knee",
 ]
@@ -39,13 +41,14 @@ HIT_TYPE = [
 #// - compter le nombre de takedown
 #// - recalculer les % quand on cache un coup
 #// - systeme de commentaire par defaut
-#!- Probleme chrono ground control
+#// - afficher le pourcentage de droite et de gauche
+#// - afficher nombre de coup au corps, tete, jambes
+#!- probleme chrono ground control
 # - faire un graphique de représentation des hits
+# - diviser encore le corps en deux pour que les zones rouges soient plus précises
 # - systeme de notation hexagonal du combattant
 # - systeme de creation de pdf
 # - systeme d'ouverture de fichier ...
-# - afficher le pourcentage de droite et de gauche
-# - afficher nombre de coup au corps, tete, jambes
 # - entrer les stats des deux combattans (age, poids, garde, ...)
 
 # TODO: Optimisation
@@ -55,12 +58,13 @@ HIT_TYPE = [
 
 # TODO: Style
 #// - trouver un moyen de différencier les coups gauches des coups droits
-# - Faire des plus beaux boutons que les Show -> faire des yeux
+# - faire des plus beaux boutons que les Show -> faire des yeux
+# - le bloc note doit etre plus grand
 # - regrouper les hits proches
-# - Legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
-# - Modifier le style complet de l'app (couleurs, style, ...) / theme.json
-# - Faire un schema bien organisé du style de l'app
-    # - Organiser mieux les boutons et modules... surement en utilisant full grid
+# - legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
+# - modifier le style complet de l'app (couleurs, style, ...) / theme.json
+# - faire un schema bien organisé du style de l'app
+    #// - Organiser mieux les boutons et modules... surement en utilisant full grid
 
 class App:
     def __init__(self, config=None):
@@ -68,7 +72,8 @@ class App:
         self.root = customtkinter.CTk()
         self.root.title('Fight Analyse')
         self.root.iconphoto(False, tk.PhotoImage(file="assets/icon.png"))
-        self.root.geometry("1920x1080")
+        self.root.attributes('-alpha',0.5)
+        self.root.geometry("1500x700")
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("theme.json")
 
@@ -86,22 +91,24 @@ class App:
         }
 
         # style frame
-        self.header_frame = customtkinter.CTkFrame(self.root, fg_color="blue", height=100)
+        self.header_frame = customtkinter.CTkFrame(self.root, fg_color="black", height=100)
         self.body_frame = customtkinter.CTkFrame(self.root)
-        self.left_body_frame = customtkinter.CTkFrame(self.body_frame, width=540)
-        self.left_hit_choice_frame = customtkinter.CTkFrame(self.left_body_frame, width=540, fg_color="red")
-        self.left_hit_stats_frame = customtkinter.CTkFrame(self.left_body_frame, width=540, fg_color="red")
-        self.right_body_frame = customtkinter.CTkFrame(self.body_frame, fg_color="red", width=540)
-        self.footer_frame = customtkinter.CTkFrame(self.root, fg_color="blue", height=100)
+        self.left_body_frame = customtkinter.CTkFrame(self.body_frame, fg_color="black", width=540)
+        self.left_hit_choice_frame = customtkinter.CTkFrame(self.left_body_frame, width=540, fg_color="black")
+        self.left_hit_stats_frame = customtkinter.CTkFrame(self.left_body_frame, width=540, fg_color="black")
+        self.right_body_frame = customtkinter.CTkFrame(self.body_frame, fg_color="black", width=540)
+        self.footer_frame = customtkinter.CTkFrame(self.root, fg_color="black", height=100)
 
         # interaction block
         self.title_entry = customtkinter.CTkEntry(self.header_frame, width=400, placeholder_text='Title')
-        self.canvas = tk.Canvas(self.left_body_frame, width=171, height=549)
+        self.canvas = tk.Canvas(self.left_body_frame, bg='white', width=171, height=549)
+
         self.body_model = tk.PhotoImage(file='assets/model_body.png') # 171 * 549
+
         self.commentary_entry = customtkinter.CTkTextbox(
             self.right_body_frame,
             width=500, #TODO peut etre augmenter ca
-            height=400,
+            height=500,
         )
         if config is None:
             with open("assets/model_commentary_entry.txt", "r") as txt_file:
@@ -110,6 +117,10 @@ class App:
         # button
         self.debug_button = customtkinter.CTkButton(self.footer_frame, text="Debug", command=self._debug)
         self.save_button = customtkinter.CTkButton(self.footer_frame, text="Save", command=self._save)
+        self.show_repartition_v = False
+        self.show_repartition_button = customtkinter.CTkButton(self.left_hit_choice_frame, text="Show", command=self.show_repartition)
+
+        self.images = []  # to hold the newly created image
 
         # setup
         self._setup_chrono()
@@ -145,6 +156,7 @@ class App:
             self.rb[i].grid(row=i, column=1, sticky='w')
         for i in range(len(HIT_TYPE), len(HIT_TYPE) + 5):
             self.round_checkbox[i - len(HIT_TYPE)].grid(row=i, column=0, sticky='w')
+        self.show_repartition_button.grid(row=len(HIT_TYPE) + 5 + 1, column=0, sticky='w')
 
         self.label = customtkinter.CTkLabel(self.left_hit_stats_frame, text="Takedown")
         self.label.grid(                row=0, column=1, padx=5, pady=1, sticky="w")
@@ -154,9 +166,9 @@ class App:
 
         self.hit_percent_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="w") # lui est peut etre dans la fonction juste au dessus
 
-        self.time_label.grid(row=3, column=0, sticky="w")
-        self.reset_button.grid(row=4, column=0, sticky="w")
-        self.start_stop_button.grid(row=4, column=1, sticky="w")
+        self.time.grid(row=3, column=0, padx=2)
+        self.startstop_chrono_button.grid(row=4, column=0, padx=2)
+        self.reset_chrono_button.grid(row=4, column=1, padx=2)
 
         self.left_hit_stats_frame.pack(side=tk.LEFT)
 
@@ -180,42 +192,41 @@ class App:
 ################################################################################
 
     def _setup_chrono(self):
-        self.start_time = None
+        self.time = tk.Label(self.left_hit_stats_frame, width=20, font=("", "18"), background='black', fg='white')
+        self.startstop_chrono_button = customtkinter.CTkButton(self.left_hit_stats_frame, text='⏯︎', command=self._start__stop_chronometer)
+        self.reset_chrono_button = customtkinter.CTkButton(self.left_hit_stats_frame, text='⏹︎', command=self._reset_chronometer)
+
+        self.seconds = 0
         self.is_running = False
-        self.time_var = tk.StringVar()
-        self.time_var.set("00:00:00")
+        self.process = None
 
-        self.time_label = customtkinter.CTkLabel(
-            self.left_hit_stats_frame, textvariable=self.time_var, font=("Helvetica", 24))
-        self.reset_button = customtkinter.CTkButton(
-            self.left_hit_stats_frame, text="⏹︎", command=self._reset_timer)
-        self.start_stop_button = customtkinter.CTkButton(
-            self.left_hit_stats_frame, text="⏯︎", command=self._start_stop_timer)
+    def _format_time(self, seconds):
+        return '{:02d}:{:02d}'.format(seconds // 60, seconds % 60)
 
-    def _start_stop_timer(self):
+    def _start__stop_chronometer(self):
         if self.is_running:
-            self.is_running = False
-            self.save = self.start_time
+            self._stop_chronometer()
         else:
-            if self.start_time is None:
-                self.start_time = default_timer()
-            self.is_running = True
-            self._update_time()
+            self._start_chronometer()
 
-    def _update_time(self):
-        if self.is_running:
-            elapsed_time = default_timer() - self.start_time
-            hours, remainder = divmod(elapsed_time, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            str_time = "{:02}:{:02}:{:02}".format(int(hours), int(minutes), int(seconds))
+    def _start_chronometer(self):
+        self._stop_chronometer()
+        self.is_running = True
+        self.process = self.root.after(1000, self._start_chronometer)
+        self.seconds += 1
+        self.time['text'] = self._format_time(self.seconds)
 
-            self.time_var.set(str_time)
-            self.root.after(1000, self._update_time)
-
-    def _reset_timer(self):
-        self.start_time = None
+    def _stop_chronometer(self):
+        try:
+            self.root.after_cancel(self.process)
+        except:
+            pass
         self.is_running = False
-        self.time_var.set("00:00:00")
+
+    def _reset_chronometer(self):
+        self._stop_chronometer()
+        self.seconds = 0
+        self.time['text'] = self._format_time(self.seconds)
 
 ################################################################################
 #############################      HIT      ####################################
@@ -249,7 +260,9 @@ class App:
         self.hit_percent_label = tk.Label(
             self.left_hit_stats_frame,
             text=self._get_nb_and_percent_of_hits(),
-            justify=tk.LEFT
+            justify=tk.LEFT,
+            background='black',
+            fg='white'
         )
 
     def _hide_hit(self, hit):
@@ -264,9 +277,45 @@ class App:
         self.memory['takedown'] += value
         self.takedown.set(self.memory['takedown'])
 
+    def _create_rectangle(self, x1, y1, x2, y2, **kwargs):
+        if 'alpha' in kwargs:
+            alpha = int(kwargs.pop('alpha') * 255)
+            fill = kwargs.pop('fill')
+            fill = self.root.winfo_rgb(fill) + (alpha,)
+            image = Image.new('RGBA', (x2-x1, y2-y1), fill)
+            self.images.append(ImageTk.PhotoImage(image))
+            self.canvas.create_image(x1, y1, image=self.images[-1], anchor='nw')
+        self.canvas.create_rectangle(x1, y1, x2, y2, **kwargs)
+
     def _draw_hit_data(self):
+        self._create_rectangle(0, 0, 171, 546, fill='white')
+        txt, n_hit_target = self._get_nb_and_percent_of_hits()
+        self.hit_percent_label.config(text=txt)
+
+        # n_hit_target to percent
+        n_hit = n_hit_target['head'] + n_hit_target['body'] + n_hit_target['leg']
+        if n_hit != 0 and self.show_repartition_v:
+            self._create_rectangle(0, 0, 171, 107, fill='red', alpha=(n_hit_target['head'] * 100 / n_hit) / 100)
+            self._create_rectangle(0, 107, 171, 306, fill='red', alpha=(n_hit_target['body'] * 100 / n_hit) / 100)
+            self._create_rectangle(0, 306, 171 + 306, 171 + 600, fill='red', alpha=(n_hit_target['leg'] * 100 / n_hit) / 100)
+
         self._draw_hits() # ca fonctionne mais peut etre pas la meilleure chose
-        self.hit_percent_label.config(text=self._get_nb_and_percent_of_hits())
+
+    def show_repartition(self):
+        self.show_repartition_v = not self.show_repartition_v
+        self._draw_hit_data()
+
+    def _draw_hits(self):
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.body_model)
+        for round in self.rounds_selected:
+            for i in range(len(self.memory['hits'][round])):
+                if not HIT_TYPE.index(self.memory['hits'][round][i]['type']) in self.hit_to_hide:
+                    self._add_hit(
+                        self.memory['hits'][round][i]['pos'],
+                        self.memory['hits'][round][i]['type'],
+                        self.memory['hits'][round][i]['side'],
+                        self.memory['hits'][round][i]['color']
+                    )
 
     def _get_nb_and_percent_of_hits(self, to_string=True):
         n_hit_list = [{'n': 0, 'type': hit_t, 'percent': 0} for hit_t in HIT_TYPE]
@@ -320,25 +369,13 @@ class App:
         if to_string:
             string_to_show = ''
             string_to_show += str(percent_of_head_hit) + '% (' + str(n_hit_target['head']) + ') head | ' + str(percent_of_body_hit) + '% (' + str(n_hit_target['body']) + ') body | ' + str(percent_of_legs_hit) + '% (' + str(n_hit_target['leg']) + ') leg\n\n'
-            string_to_show += str(percent_of_left_hit) + '% (' + str(n_hit_side['left']) + ') lefts | ' + str(100 - percent_of_left_hit if n_hit_side['right'] > 0 else 0) + '% (' + str(n_hit_side['right']) + ') rights\n\n'
+            string_to_show += str(percent_of_left_hit) + '% (' + str(n_hit_side['left']) + ') lefts | ' + str(round(100 - percent_of_left_hit, 1) if n_hit_side['right'] > 0 else 0) + '% (' + str(n_hit_side['right']) + ') rights\n\n'
             for case in n_hit_list:
                 string_to_show += str(case['percent']) + '% - ' + str(case['n']) + ' ' + str(case['type']) + '\n'
             string_to_show = string_to_show[:-1]
-            return string_to_show
+            return string_to_show, n_hit_target
         else:
             return n_hit_list
-
-    def _draw_hits(self):
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.body_model)
-        for round in self.rounds_selected:
-            for i in range(len(self.memory['hits'][round])):
-                if not HIT_TYPE.index(self.memory['hits'][round][i]['type']) in self.hit_to_hide:
-                    self._add_hit(
-                        self.memory['hits'][round][i]['pos'],
-                        self.memory['hits'][round][i]['type'],
-                        self.memory['hits'][round][i]['side'],
-                        self.memory['hits'][round][i]['color']
-                    )
 
     def _redo(self, event=None):
         if len(self.previous_hits) >= 1:
@@ -429,7 +466,7 @@ class App:
         """
         self.memory['filename'] = self.title_entry.get() + '.plk'
         self.memory['commentary'] = self.commentary_entry.get('1.0', tk.END)
-        self.memory['ground_control'] = self.time_var.get()
+        self.memory['ground_control'] = self.seconds
         with open('saves/' + str(self.title_entry.get()) + '.plk', 'wb') as file:
             pickle.dump(self.memory, file)
         print('saving with name: ' + str(self.title_entry.get()) + '.plk')
@@ -463,8 +500,10 @@ class App:
                     self.memory['hits'][i][j]['side'],
                     self.memory['hits'][i][j]['color']
                 )
-        self.time_var.set(self.memory['ground_control'])
         self.takedown.set(self.memory['takedown'])
+
+        self.seconds = self.memory.get('ground_control', 0)
+        self.time['text'] = self._format_time(self.seconds)
 
 ################################################################################
 #############################      DEBUG      ##################################
