@@ -72,7 +72,6 @@ class App:
         self.root = customtkinter.CTk()
         self.root.title('Fight Analyse')
         self.root.iconphoto(False, tk.PhotoImage(file="assets/icon.png"))
-        self.root.attributes('-alpha',0.5)
         self.root.geometry("1500x700")
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("theme.json")
@@ -100,7 +99,7 @@ class App:
         self.footer_frame = customtkinter.CTkFrame(self.root, fg_color="black", height=100)
 
         # interaction block
-        self.title_entry = customtkinter.CTkEntry(self.header_frame, width=400, placeholder_text='Title')
+        self.title_entry = customtkinter.CTkEntry(self.header_frame, width=500, placeholder_text='Title')
         self.canvas = tk.Canvas(self.left_body_frame, bg='white', width=171, height=549)
 
         self.body_model = tk.PhotoImage(file='assets/model_body.png') # 171 * 549
@@ -249,7 +248,7 @@ class App:
 
         self.takedown = tk.IntVar()
         self.nb_takedown = customtkinter.CTkLabel(self.left_hit_stats_frame,
-            textvariable=self.takedown, font=("Helvetica", 16),)
+            textvariable=self.takedown, font=("Helvetica", 18),)
         self.del_takedown_button = customtkinter.CTkButton(self.left_hit_stats_frame,
             text="-", command=lambda i=-1: self._update_takedown(i),
             width=35, height=25)
@@ -297,7 +296,7 @@ class App:
         if n_hit != 0 and self.show_repartition_v:
             self._create_rectangle(0, 0, 171, 107, fill='red', alpha=(n_hit_target['head'] * 100 / n_hit) / 100)
             self._create_rectangle(0, 107, 171, 306, fill='red', alpha=(n_hit_target['body'] * 100 / n_hit) / 100)
-            self._create_rectangle(0, 306, 171 + 306, 171 + 600, fill='red', alpha=(n_hit_target['leg'] * 100 / n_hit) / 100)
+            self._create_rectangle(0, 306, 171 + 306, 171 + 400, fill='red', alpha=(n_hit_target['leg'] * 100 / n_hit) / 100)
 
         self._draw_hits() # ca fonctionne mais peut etre pas la meilleure chose
 
