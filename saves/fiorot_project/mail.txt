@@ -1,0 +1,51 @@
+----------------------------
+
+2 PPT:
+    - une analyse de Dustin (Analyse des coups portés par Dustin)
+    - une analyse des adversaire de Dustin (Analyse des coups recu par Dustin)
+
+----------------------------
+À l’attention du staff de Manon Fiorot.
+
+Bonjour,
+
+      Je me présente Yannis Defontaine, j'ai créé une application d'analyse de combat MMA et comme on le dit chez moi, « Qui ne tente rien n'a rien », c'est pourquoi je me permets de vous la présenter !
+
+      J’ai découvert la MMA avec les débuts de Francis Ngannou à l'UFC et aujourd'hui je regarde quasiment toutes les cartes principales.
+Je suis l’ascendance de Manon Fiorot depuis son premier combat à l'UFC et je suis fier que certaines personnes comme elle représentent la France !
+En sachant qu'elle devra affronter Erin Blanchfield le 30 mars, j'ai ressenti l'envie d'apporter ma modeste pierre à l'édifice.
+
+      Actuellement en 4ème année d’école informatique, j'aime développer des applications et plus particulièrement lorsque celles-ci touchent le monde du sport de haut niveau.
+A ce titre, j'ai eu l'occasion de travailler en étroite collaboration avec des préparateurs athlétiques de l'ESTAC (club de football évoluant en Ligue 2) afin de développer une application pour le suivi de leurs données GPS au quotidien que ce soit en entrainement ou en match. Cette expérience a été très enrichissante pour eux comme pour moi puisqu'elle nous a permis d'associer leurs idées/connaissances précises de l'activité avec mes compétences en informatique dans une recherche de performance.
+      A la suite de cette expérience, l’idée m’est donc venue de créer une application dédiée à l’analyse des combats de MMA afin de concilier ma passion et mes compétences.
+Celle-ci se nomme « Fight Analyse ». Elle a pour but de prendre note de tous les coups envoyés/reçus par un combattant et ainsi de donner une vision claire et rapide du nombre/pourcentage de coups envoyés/reçus, de leurs positions, de différencier les droites des gauches, …
+Cela permet donc de mettre en évidence statistiquement le fait que le combattant cible certaines zones de frappe (intérieur jambe droite, foie, ...), n'utilise que quelques coups de son arsenal (low kick, crochet droit, ...) ou encore d’observer les différents rythmes/stratégies selon les rounds, comme vous pourrez le constater dans l’exemple ci-dessous.
+
+
+      J'ai commencé à développer cette application il y a moins de 2 semaines, en parallèle de mes études,
+ce qui explique son esthétique peu travaillée et quelques problèmes d'affichages.
+      Cela dit, il n'y aucun problème sur les statistiques affichées et j'ai encore beaucoup d'idées pour améliorer
+l’interface mais également les possibilités d’analyse que pourrait offrir ce type d’application.
+      Afin de vous montrer ce que propose « Fight Analyse », j’ai pris l’initiative de faire les statistiques des 5
+derniers combats de Erin Blanchfield (cf. pièces jointes). J'ai ensuite trié les combats et analyses pour vous présenter,
+selon moi, seulement le plus intéressant. Vous trouverez ainsi, une analyse statistique des coups portés par Erin mais
+également une analyse statistique des coups reçus par Erin de la part de son adversaire.
+
+Toutefois, étant un amateur de MMA et ne disposant pas de tous les moyens nécessaires pour une analyse fine, voici les règles auxquelles je me suis astreint pour prendre note :
+    - Je n'ai pas compté les coups au sol qui sont parfois très légers et très nombreux ce qui pourrait fausser certaines analyses.
+    - Je n'ai pas compté les coups durant les clinchs pour la même raison que les coups au sol.
+    - Je n'ai pas compté les coups dans la garde (même si cela à un but).
+    - Ne disposant que de la caméra unique de la chaine UFC pour prendre note, certains angles m'ont parfois empêché de savoir si un coup a touché ou même de savoir précisément là où il a touché.
+    - Il faut comprendre que chaque coup est représenté sur le corps avec sa première lettre (J = Jab, H = Hook, ...) exception du Kick qui est représenté par un C puisque le K = Knee actuellement.
+    - Les coups en rouge représentent la partie gauche du corps (jab gauche, lowkick gauche, ...) et les coups en blanc représentent quant à eux la partie droite du corps (jab droit, lowkick droit, ...).
+
+      Je ne sais pas si une telle application présenterait un intérêt pour vous mais, si tel est le cas, je serais ravi de vous la présenter de manière plus approfondie et de l'adapter à vos besoins en conséquence.
+      Actuellement en études au Canada, je ne dispose pas d'un numéro Francais (+33), je vous laisse donc mon numéro de téléphone Canadien : +1 (367) 382-1772 si vous souhaitez me contacter.
+Je suis aussi disponible sur Teams, Messenger, ...
+
+J'espère que ce message aura pu attirer votre attention, dans l'attente de vous lire.
+
+Quoiqu'il arrive, je vous souhaite une magnifique victoire !
+
+Cordialement,
+Yannis Defontaine.

@@ -1,0 +1,208 @@
+Bonjour,
+
+Je suis Yannis Defontaine, les débuts de Francis Ngannou à l'UFC m'ont fait découvrir le MMA.
+
+Aujourd'hui je regarde (quasiment) toutes les cartes principales de l'UFC chaque semaine et je suis tous les Français !
+
+Benoit Saint-Denis est une fusée qui est en train de décoler dans la catégorie lightweight et je suis fièr que certaines personnes comme lui représente la France !
+
+En sachant qu'il devra affronter Dustin Poirier le 9 mars lors de l'UFC 299, je me suis senti en devoir de l'aider.
+
+Étant en école d'informatique, j'aime developper des applications et plus particulierement quand j'interviens dans le monde du sport.
+
+Prenans en compte un livre nommé "Big Data Foot" que je suis en train de lire. Je m'en suis inspiré pour essayer de faire une application facilitant l'analyse d'un combattant.
+-- OU --
+Étant en train de lire un livre nommé "Big Data Foot" qui explique comment se déroule toutes les micros analyses d'une équipe de foot avant un affrontement. Je me suis dit que je pourrai faire la même chose pour le MMA en developpant une application.
+
+Celle ci se nomme "Fight Analyse", elle permet de prendre note sur tout les coups envoyés par un combattant. À la fin de votre prise de note, vous pouvez donc observer le nombre et pourcentage des coups recus, leur position, différencier les droites des gauches ...
+Cela permet donc de préciser le fait que le combattant focus certaines zones de frappe (jambes interieur, foie, ...), n'utilise que quelques coups de son arsenal (low kick, crochet droit, ...), observer différentes rythmes ou stratégies selon les rounds ...
+(Est ce que ici je dois faire une liste de tout ce qui est possible de faire ou je laisse découvrir ?)
+
+(exemple photo)
+
+J'ai commencé cette application il y a moins de 3 semaines donc celle ci est encore en developpement, cela explique son esthétique peu travaillé et quelques problèmes d'affichages.
+Cela dit, il n'y aucun probleme sur les statistiques affichées et j'ai encore beaucoup d'idée de concept à implementer !
+
+J'ai aussi pris l'initiative d'examiner avec mon application, les 5 derniers combats de Dustin Poirier et de Benoit Saint Denis pour vous montrer ce que propose "Fight Analyse".
+Pour chaque combat il y a une analyse de Benoit ou Dustin (les coups qu'ils ont placés) + une analyse de son adversire (donc les coups que Benoit ou Dustin ont recus).
+
+Cela dit, etant un amateur de MMA, voici les règles que j'ai utilisé pour prendre note:
+    - Je n'ai pas compté les coups au sol, ils sont des fois très leger et très nombreux donc cela fausse certaines analyses.
+    - Je n'ai pas compté les coups durant les clinchs pour la même raison que les coups au sol.
+    - Ne disposant que de la caméra unique de la chaine UFC pour prendre note, par moment, certains angle de caméra m'empeche de savoir si un coup à touché, ou meme savoir précisemment là ou il a touché
+
+PS: Si jamais vous souhaitez communiquer pour en savoir plus. Actuellement en étude au Canada je ne dispose pas d'un numéro Francais (+33), je vous laisse malgrè tout mon numéro de téléphone Canadien: +1 (367) 382-1772. Je suis aussi disponible sur Teams, Messenger, ...
+
+----------------------------
+
+--- Version Maman ---
+
+Bonjour,
+
+Je suis Yannis Defontaine, j'ai créé une application d'analyse de combat MMA et comme on le dit chez moi, "Qui ne tente rien n'a rien", c'est pourquoi je me permet de vous la présenter.
+
+Les débuts de Francis Ngannou à l'UFC m'ont fait découvrir le MMA.
+
+Aujourd'hui je regarde quasiment toutes les cartes principales de l'UFC chaque semaine et je suis tous les Français !
+
+Benoit Saint-Denis est une fusée qui est en train de décoler dans la catégorie lightweight et je suis fier que certaines personnes comme lui représentent la France !
+
+En sachant qu'il devra affronter Dustin Poirier le 9 mars lors de l'UFC 299, j'ai ressenti l'envie d'apporter ma modeste pierre à l'édifice.
+
+Étant en école d'informatique, j'aime développer des applications et plus particulièrement quand j'interviens dans le monde du sport.
+A ce titre j'ai eu l'occasion de travailler en étroite collaboration avec un coach de l'équipe de football "Pro 2" de Troyes.
+Pour exemple, ce travrail lui a permis d'avoir une analyse fine des données gps de chaque joueur après match et/ou entraînement.
+
+Je me suis dit que je pourrais faire la même chose pour le MMA en developpant une application.
+
+Celle ci se nomme "Fight Analyse", elle permet de prendre note sur tous les coups envoyés par un combattant.
+À la fin de votre prise de notes, vous pouvez donc observer les nombres et les pourcentages des coups reçus, leurs positions, différencier les droites des gauches, ...
+Cela permet donc de préciser le fait que le combattant cible certaines zones de frappe (intérieur jambe droite, foie, ...), n'utilise que quelques coups de son arsenal (low kick, crochet droit, ...), observer différents rythmes ou stratégies selon les rounds, ...
+
+Je pourrai vous faire une liste plus exaustive si vous le désirez.
+
+(exemple photo photo de Gane contre Lewis)
+
+J'ai commencé cette application il y a moins de 2 semaines, en parallèle de mes études, donc celle ci est encore en développement, cela explique son esthétique peu travaillée et quelques problèmes d'affichages.
+Cela dit, il n'y aucun problème sur les statistiques affichées et j'ai encore beaucoup d'idées de concepts à implémenter !
+
+J'ai aussi pris l'initiative d'examiner avec mon application, les 5 derniers combats de Dustin Poirier et de Benoit Saint Denis pour vous montrer ce que propose "Fight Analyse".
+Pour chaque combat il y a une analyse de Benoit ou Dustin (les coups qu'ils ont placés) + une analyse de son adversaire (donc les coups que Benoit ou Dustin ont reçus).
+
+
+Cela dit, étant un amateur de MMA et ne disposant pas de tous les moyens nécessaires pour une analyse fine, voici les règles auxquelles je me suis astreint pour prendre note:
+    - Je n'ai pas compté les coups au sol, ils sont des fois très légers et très nombreux donc cela fausse certaines analyses.
+    - Je n'ai pas compté les coups durant les clinchs pour la même raison que les coups au sol.
+    - Je n'ai pas compté les coups dans la garde (même si cela à un but).
+    - Ne disposant que de la caméra unique de la chaine UFC pour prendre note, par moment, certains angles de caméra m'empêchent de savoir si un coup a touché, ou même savoir précisemment là où il a touché.
+    - Il faut comprendre que les chaque coup est représenté sur le corps avec sa première lettre (J = Jab, H = Hook, ...) sauf pour Kick, qui lui est égal a C (K = Knee actuellement).
+    - Les coups en rouges sont des coups avec la parties gauche du corps, les coups en blancs viennent de la partie droite du corps.
+
+Je ne sais pas si une telle application présenterait un intérêt pour vous, mais si tel est le cas, je serais ravis de vous la présenter et de l'adapter à vos besoins.
+Ce serait pour moi un honneur.
+
+Actuellement en étude au Canada je ne dispose pas d'un numéro Francais (+33), je vous laisse malgrè tout mon numéro de téléphone Canadien: +1 (367) 382-1772.
+Je suis aussi disponible sur Teams, Messenger, ...
+
+J'espère que ce message aura pu attirer votre attention, dans l'attente de vous lire.
+
+Quoiqu'il arrive, je vous souhaite une magnifique victoire !
+
+Cordialement,
+
+Yannis Defontaine.
+
+----------------------------
+
+--- Version Tom ---
+
+Bonjour,
+
+Je suis Yannis Defontaine, j'ai créé une application d'analyse de combat MMA et comme on le dit chez moi, "Qui ne tente rien n'a rien", c'est pourquoi je me permet de vous la présenter.
+
+Les débuts de Francis Ngannou à l'UFC m'ont fait découvrir le MMA.
+
+Aujourd'hui je regarde quasiment toutes les cartes principales de l'UFC chaque semaine et je suis tous les Français !
+
+Benoit Saint-Denis est une fusée qui est en train de décoler dans la catégorie lightweight et je suis fier que certaines personnes comme lui représentent la France !
+
+En sachant qu'il devra affronter Dustin Poirier le 9 mars lors de l'UFC 299, j'ai ressenti l'envie d'apporter ma modeste pierre à l'édifice.
+
+Étant en école d'informatique, j'aime développer des applications et plus particulièrement quand j'interviens dans le monde du sport.
+A ce titre, j'ai eu l'occasion de travailler en étroite collaboration avec des préparateurs athlétiques de l'ESTAC (club de football évoluant en Ligue 2) afin de développer une application pour le suivi de leurs données GPS au quotidien que ce soit en entrainement ou en match. Cette expérience a été très enrichissante pour eux comme pour moi puisqu'elle nous a permis de d'associer leurs idées/connaissances précises de l'activité avec mes compétences en informatique dans une recherche de haut niveau.
+Je me suis dit que je pourrais faire la même chose pour le MMA en developpant une application.
+
+Celle ci se nomme "Fight Analyse", elle permet de prendre note sur tous les coups envoyés par un combattant.
+À la fin de votre prise de notes, vous pouvez donc observer les nombres et les pourcentages des coups reçus, leurs positions, différencier les droites des gauches, ...
+Cela permet donc de préciser le fait que le combattant cible certaines zones de frappe (intérieur jambe droite, foie, ...), n'utilise que quelques coups de son arsenal (low kick, crochet droit, ...), observer différents rythmes ou stratégies selon les rounds, ...
+
+Je pourrai vous faire une liste plus exaustive si vous le désirez.
+
+(exemple photo photo de Poirier vs ?)
+
+J'ai commencé cette application il y a moins de 2 semaines, en parallèle de mes études, donc celle ci est encore en développement, cela explique son esthétique peu travaillée et quelques problèmes d'affichages.
+Cela dit, il n'y aucun problème sur les statistiques affichées et j'ai encore beaucoup d'idées de concepts à implémenter !
+
+J'ai aussi pris l'initiative d'examiner avec mon application, les 5 derniers combats de Dustin Poirier pour vous montrer ce que propose "Fight Analyse".
+Pour chaque combat il y a une analyse de Dustin (les coups qu'il a placés) + une analyse de son adversaire (donc les coups que Dustin a reçus).
+J'ai également fait les statistiques des 5 derniers combats de Benoît Saint-Denis, je ne les ai pas envoyé pour ne pas vous donner trop d'information, si vous les désirez, je vous les transmettrai avec plaisir !
+
+Cela dit, étant un amateur de MMA et ne disposant pas de tous les moyens nécessaires pour une analyse fine, voici les règles auxquelles je me suis astreint pour prendre note:
+    - Je n'ai pas compté les coups au sol, ils sont des fois très légers et très nombreux donc cela fausse certaines analyses.
+    - Je n'ai pas compté les coups durant les clinchs pour la même raison que les coups au sol.
+    - Je n'ai pas compté les coups dans la garde (même si cela à un but).
+    - Ne disposant que de la caméra unique de la chaine UFC pour prendre note, par moment, certains angles de caméra m'empêchent de savoir si un coup a touché, ou même savoir précisemment là où il a touché.
+    - Il faut comprendre que les chaque coup est représenté sur le corps avec sa première lettre (J = Jab, H = Hook, ...) sauf pour Kick, qui lui est égal a C (K = Knee actuellement).
+    - Les coups en rouges sont des coups avec la parties gauche du corps (Jab gauche, crochet gauche, ...), les coups en blancs viennent de la partie droite du corps (Jab droit, crochet droit, ...).
+
+Je ne sais pas si une telle application présenterait un intérêt pour vous, mais si tel est le cas, je serais ravis de vous la présenter et de l'adapter à vos besoins.
+Ce serait pour moi un honneur.
+
+Actuellement en étude au Canada je ne dispose pas d'un numéro Francais (+33), je vous laisse malgrè tout mon numéro de téléphone Canadien: +1 (367) 382-1772.
+Je suis aussi disponible sur Teams, Messenger, ...
+
+J'espère que ce message aura pu attirer votre attention, dans l'attente de vous lire.
+
+Quoiqu'il arrive, je vous souhaite une magnifique victoire !
+
+Cordialement,
+
+Yannis Defontaine.
+
+----------------------------
+
+Bonjour,
+Je me présente Yannis Defontaine, j'ai créé une application d'analyse de combat MMA et comme on le dit chez moi, "Qui ne tente rien n'a rien", c'est pourquoi je me permets de vous la présenter.
+J’ai découvert la MMA avec les débuts de Francis Ngannou à l'UFC et aujourd'hui je regarde quasiment toutes les cartes principales.
+Je suis l’ascendance de Benoit Saint-Denis depuis son premier combat contre Elizeu Zaleski dos Santos et je suis fier que certaines personnes comme lui représentent la France !
+En sachant qu'il devra affronter Dustin Poirier le 9 mars lors de l'UFC 299, j'ai ressenti l'envie d'apporter ma modeste pierre à l'édifice.
+
+Actuellement en 4ème année d’école informatique, j'aime développer des applications et plus particulièrement lorsque celles-ci touchent le monde du sport de haut niveau.
+A ce titre, j'ai eu l'occasion de travailler en étroite collaboration avec des préparateurs athlétiques de l'ESTAC (club de football évoluant en Ligue 2) afin de développer une application pour le suivi de leurs données GPS au quotidien que ce soit en entrainement ou en match. Cette expérience a été très enrichissante pour eux comme pour moi puisqu'elle nous a permis de lier leurs idées/connaissances précises de l'activité avec mes compétences en informatique dans une recherche de performance.
+A la suite de cette expérience, l’idée m’est donc venue de créer une application dédiée à l’analyse des combats de MMA afin de concilier ma passion et mes compétences. Celle-ci se nomme "Fight Analyse". Elle a pour but de prendre note de tous les coups envoyés/reçus par un combattant et ainsi de donner une vision claire et rapide du nombre/pourcentage de coups envoyés/reçus, de leurs positions, de différencier les droites des gauches, …
+Cela permet donc de mettre en évidence statistiquement le fait que le combattant cible certaines zones de frappe (intérieur jambe droite, foie, ...), n'utilise que quelques coups de son arsenal (low kick, crochet droit, ...) ou encore d’observer les différents rythmes/stratégies selon les rounds, comme vous pourrez le constater dans l’exemple ci-dessous.
+(exemple photo photo de Gane contre Lewis)
+
+
+J'ai commencé à développer cette application il y a moins de 2 semaines, en parallèle de mes études, ce qui explique son esthétique peu travaillée et quelques problèmes d'affichages.
+Cela dit, il n'y aucun problème sur les statistiques affichées et j'ai encore beaucoup d'idées pour améliorer l’interface mais également les possibilités d’analyse que pourrait offrir ce type d’application.
+Afin de vous montrer ce que propose « Fight Analyse », j’ai pris l’initiative de faire les statistiques des 5 derniers combats de Dustin Poirier (cf. pièces jointes). Vous trouverez ainsi, pour chaque combat, une analyse statistique des coups portés par Dustin mais également une analyse statistique des coups qu’a reçu Dustin de la part de son adversaire. (voir les titres des photos)
+
+Toutefois, étant un amateur de MMA et ne disposant pas de tous les moyens nécessaires pour une analyse fine, voici les règles auxquelles je me suis astreint pour prendre note :
+    - Je n'ai pas compté les coups au sol qui sont parfois très légers et très nombreux ce qui pourrait fausser certaines analyses.
+    - Je n'ai pas compté les coups durant les clinchs pour la même raison que les coups au sol.
+    - Je n'ai pas compté les coups dans la garde (même si cela à un but).
+    - Ne disposant que de la caméra unique de la chaine UFC pour prendre note, certains angles m'ont parfois empêché de savoir si un coup a touché ou même de savoir précisément là où il a touché.
+    - Il faut comprendre que chaque coup est représenté sur le corps avec sa première lettre (J = Jab, H = Hook, ...) exception du Kick qui est représenté par un C puisque le K = Knee actuellement.
+    - Les coups en rouges représentent la partie gauche du corps (Jab gauche, crochet gauche, ...) et les coups en blancs représentent quant à eux la partie droite du corps (Jab droit, crochet droit, ...).
+
+Je ne sais pas si une telle application présenterait un intérêt pour vous mais, si tel est le cas, je serais ravi de vous la présenter de manière plus approfondie et de l'adapter à vos besoins en conséquence.
+Actuellement en études au Canada, je ne dispose pas d'un numéro Francais (+33), je vous laisse donc mon numéro de téléphone Canadien : +1 (367) 382-1772 si vous souhaitez me contacter.
+Je suis aussi disponible sur Teams, Messenger, ...
+
+J'espère que ce message aura pu attirer votre attention, dans l'attente de vous lire.
+
+Quoiqu'il arrive, je vous souhaite une magnifique victoire !
+
+Cordialement,
+
+Yannis Defontaine.
+
+----------------------------
+
+2 PPT:
+    - une analyse de Dustin (Analyse des coups portés par Dustin)
+    - une analyse des adversaire de Dustin (Analyse des coups recu par Dustin)
+
+----------------------------
+
+- demander des conseils
+
+- lui faire comprendre que je peux en faire plus
+- ne prend en compte que les coups de muay thaï
+- angle de camera
+- preciser que les jabs c'est des directs aussi
+- rouge -> gauche / blanc -> droite
+- C c'est pour kick
+- je ne prend pas en compte les coups dans la garde (preciser que meme pour le combat bsd bonfim je le fait pas du coup)
+

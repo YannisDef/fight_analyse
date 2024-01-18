@@ -45,11 +45,18 @@ HIT_TYPE = [
 #// - afficher nombre de coup au corps, tete, jambes
 #!- probleme chrono ground control
 # - faire un graphique de représentation des hits
+# - deuxieme corps couleur naturelle et de + en + rouge
+# - front kick ou middle ?
+# - systeme de prise de note sur un coup
 # - diviser encore le corps en deux pour que les zones rouges soient plus précises
 # - systeme de notation hexagonal du combattant
 # - systeme de creation de pdf
 # - systeme d'ouverture de fichier ...
 # - entrer les stats des deux combattans (age, poids, garde, ...)
+# - separer les coups gauches des coups droits durant le trie d'affichage
+# - savoir combien le combattant a lancé de hooks et combien ont touchés du coup
+
+# - faire une video pour presenter les analyses
 
 # TODO: Optimisation
 #// - je pense qu'on peut optimiser le code car je recréer certaines variables a chaque tour de boucle
@@ -58,8 +65,8 @@ HIT_TYPE = [
 
 # TODO: Style
 #// - trouver un moyen de différencier les coups gauches des coups droits
+#// - le bloc note doit etre plus grand
 # - faire des plus beaux boutons que les Show -> faire des yeux
-# - le bloc note doit etre plus grand
 # - regrouper les hits proches
 # - legende ? comprendre la différence entre rouge et bleu ? C pour kick c'est nul
 # - modifier le style complet de l'app (couleurs, style, ...) / theme.json
@@ -407,7 +414,7 @@ class App:
             {'x': event.x, 'y': event.y},
             HIT_TYPE[self.champs['hit_type'].get()],
             RIGHT,
-            'blue',
+            'white',
             True
         )
         self._draw_hit_data()
